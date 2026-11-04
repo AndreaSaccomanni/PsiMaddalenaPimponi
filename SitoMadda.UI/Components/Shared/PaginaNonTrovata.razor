@@ -1,0 +1,27 @@
+@page "/pagina-non-trovata"
+@using Microsoft.AspNetCore.Http
+
+<PageTitle>Pagina non trovata · Maddalena Pimponi</PageTitle>
+
+<PageHero Titolo="Pagina non trovata" Descrizione="L’indirizzo che hai aperto non esiste oppure è stato spostato." />
+
+<section class="section section-white">
+    <div class="section-shell centered">
+        <p class="muted">Controlla il collegamento oppure torna alla pagina iniziale per trovare le informazioni che cerchi.</p>
+        <p><a class="button button-primary" href="/">Torna alla pagina iniziale <span aria-hidden="true">→</span></a></p>
+    </div>
+</section>
+
+@code {
+    [CascadingParameter]
+    private HttpContext? ContestoHttp { get; set; }
+
+    /// <summary>Imposta lo stato 404 quando la pagina viene servita senza componente interattivo.</summary>
+    protected override void OnInitialized()
+    {
+        if (ContestoHttp is not null)
+        {
+            ContestoHttp.Response.StatusCode = StatusCodes.Status404NotFound;
+        }
+    }
+}

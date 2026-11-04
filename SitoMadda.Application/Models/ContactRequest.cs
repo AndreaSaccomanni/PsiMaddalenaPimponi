@@ -8,6 +8,7 @@ public sealed class ContactRequest
     /// <summary>Nome della persona che invia la richiesta.</summary>
     [Required(ErrorMessage = "Inserisci il tuo nome.")]
     [StringLength(100, ErrorMessage = "Il nome non può superare i 100 caratteri.")]
+    [RegularExpression(@"^[^\u0000-\u001F\u007F]*$", ErrorMessage = "Il nome contiene caratteri non consentiti.")]
     public string Nome { get; set; } = string.Empty;
 
     /// <summary>Indirizzo email da usare per rispondere alla persona.</summary>
@@ -23,6 +24,7 @@ public sealed class ContactRequest
 
     /// <summary>Argomento scelto nel modulo, se specificato.</summary>
     [StringLength(100)]
+    [RegularExpression(@"^[^\u0000-\u001F\u007F]*$", ErrorMessage = "L'argomento contiene caratteri non consentiti.")]
     public string? Argomento { get; set; }
 
     /// <summary>Testo della richiesta inviato dalla persona.</summary>

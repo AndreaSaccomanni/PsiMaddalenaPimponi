@@ -14,14 +14,21 @@ In Visual Studio imposta `SitoMadda.UI` come progetto di avvio e seleziona il pr
 
 ## Configurazione dell'invio email
 
-Il destinatario è configurato in `SitoMadda.UI\appsettings.json`. Per inviare email, imposta mittente e password SMTP con User Secrets, così le credenziali non vengono salvate nei file del progetto:
+Il modulo invia i messaggi all'indirizzo della psicologa configurato in `SitoMadda.UI\appsettings.json` (`Email:RecipientAddress`). Per la consegna usa l'account Gmail autenticato via SMTP (`Email:SenderAddress`): l'indirizzo inserito nel modulo viene impostato come **Rispondi a** (`Reply-To`) e incluso nel messaggio. In questo modo la psicologa può rispondere direttamente alla persona. Gmail richiede che il mittente SMTP sia l'account autenticato; non è possibile usare come mittente l'indirizzo arbitrario inserito nel modulo.
+
+Per abilitare l'invio:
+
+1. Nell'account Google che spedirà i messaggi, attiva la verifica in due passaggi e genera una [password per le app](https://myaccount.google.com/apppasswords). Non usare la password normale dell'account.
+2. Apri PowerShell e sostituisci i valori di esempio con l'indirizzo Gmail mittente e la password per le app appena generata:
 
 ```powershell
-dotnet user-secrets set "Email:SenderAddress" "psi.maddalenapimponi@gmail.com" --project .\SitoMadda.UI
-dotnet user-secrets set "Email:SenderPassword" "PASSWORD-APP-GMAIL" --project .\SitoMadda.UI
+dotnet user-secrets set "Email:SenderAddress" "ACCOUNT-GMAIL-MITTENTE@gmail.com" --project "C:\Users\andre\source\repos\PsiMaddalenaPimponi.git\SitoMadda.UI"
+dotnet user-secrets set "Email:SenderPassword" "PASSWORD-PER-LE-APP" --project "C:\Users\andre\source\repos\PsiMaddalenaPimponi.git\SitoMadda.UI"
 ```
 
-Con Gmail usa una password per le app, non la password normale dell'account. Il server e la porta predefiniti sono `smtp.gmail.com` e `587`. Senza credenziali il modulo mostra un messaggio di configurazione e non dichiara falsamente che l'email sia stata inviata.
+3. Riavvia l'applicazione da Visual Studio e invia un messaggio di prova dal modulo Contatti.
+
+I comandi salvano le credenziali nei **User Secrets locali** del progetto, non in `appsettings.json` né nella repository Git. Il server e la porta predefiniti sono `smtp.gmail.com` e `587`, con TLS. Senza le credenziali corrette il modulo segnala l'errore e non dichiara che il messaggio sia stato inviato.
 
 ## Pagine
 
@@ -31,6 +38,8 @@ Con Gmail usa una password per le app, non la password normale dell'account. Il 
 - `/domande-frequenti` FAQ
 - `/contatti` Modulo email, recapiti e mappe Google Maps di Orvieto e Narni
 - `/privacy` Informativa preliminare da completare e verificare prima della pubblicazione
+
+Qualsiasi altro percorso viene servito con stato HTTP 404 dalla pagina `PaginaNonTrovata`. Le intestazioni di sicurezza (`nosniff`, `Referrer-Policy`, `Permissions-Policy` e una CSP in modalità di sola segnalazione) sono applicate da `Program.cs`; HSTS e redirect HTTPS restano attivi solo fuori dall'ambiente di sviluppo.
 
 Il ritratto in `SitoMadda.UI\wwwroot\images` è stato ritagliato dalla schermata di riferimento. Le schermate originali restano nella cartella `Sito Madda` sul Desktop.
 
