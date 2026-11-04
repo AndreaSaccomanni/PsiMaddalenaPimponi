@@ -128,13 +128,10 @@
         }
         catch (InvalidOperationException errore)
         {
-            messaggioStato = errore.Message;
+            logger.LogWarning(errore, "Modulo contatti non configurato: invio email non disponibile.");
+            messaggioStato = "Il modulo non è al momento attivo. Puoi scrivermi direttamente a " + contenutiSito.IndirizzoEmail + ".";
         }
-        catch (FormatException)
-        {
-            messaggioStato = "La configurazione email non è valida. Controlla l’indirizzo mittente nelle impostazioni locali.";
-        }
-        catch (System.Net.Mail.SmtpException errore)
+        catch (Exception errore)
         {
             logger.LogError(errore, "Invio email di contatto non riuscito.");
             messaggioStato = "Non è stato possibile inviare il messaggio. Riprova più tardi oppure scrivi direttamente a " + contenutiSito.IndirizzoEmail + ".";

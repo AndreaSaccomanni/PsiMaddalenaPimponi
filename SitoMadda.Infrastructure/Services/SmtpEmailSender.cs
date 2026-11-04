@@ -26,7 +26,14 @@ public sealed class SmtpEmailSender(
                 "L'invio email non è ancora configurato. Imposta i dati SMTP locali seguendo le istruzioni nel README.");
         }
 
-        var oggettoEmail = string.IsNullOrWhiteSpace(richiesta.Argomento) ? "primo colloquio" : richiesta.Argomento.Trim();
+        var oggettoEmail = PulisciValoreIntestazione(
+            string.IsNullOrWhiteSpace(richiesta.Argomento) ? "primo colloquio" : richiesta.Argomento);
+
+        if (oggettoEmail.Length == 0)
+        {
+            oggettoEmail = "primo colloquio";
+        }
+
         using var messaggioEmail = new MailMessage
         {
             From = new MailAddress(_impostazioniEmail.SenderAddress, contenutiSito.NomeCompleto),
@@ -45,7 +52,7 @@ public sealed class SmtpEmailSender(
             IsBodyHtml = false
         };
         messaggioEmail.To.Add(new MailAddress(_impostazioniEmail.RecipientAddress));
-        messaggioEmail.ReplyToList.Add(new MailAddress(richiesta.Email.Trim(), richiesta.Nome.Trim()));
+        messaggioEmail.ReplyToList.Add(CreaIndirizzoRisposta(richiesta));
 
         using var clientSmtp = new SmtpClient(_impostazioniEmail.SmtpHost, _impostazioniEmail.SmtpPort)
         {
@@ -54,5 +61,42 @@ public sealed class SmtpEmailSender(
         };
 
         await clientSmtp.SendMailAsync(messaggioEmail, tokenAnnullamento);
+    }
+
+    /// <summary>Rimuove i caratteri di controllo e compatta gli spazi in un valore usato nelle intestazioni.</summary>
+    private static string PulisciValoreIntestazione(string valore)
+    {
+        var caratteri = valore.Select(carattere => char.IsControl(carattere) ? ' ' : carattere).ToArray();
+        var pulito = new string(caratteri).Trim();
+
+        while (pulito.Contains("  ", StringComparison.Ordinal))
+        {
+            pulito = pulito.Replace("  ", " ", StringComparison.Ordinal);
+        }
+
+        return pulito.Length > 100 ? pulito[..100] : pulito;
+    }
+
+    /// <summary>Costruisce l'indirizzo a cui rispondere, senza virgolette o caratteri di controllo nel nome.</summary>
+    private static MailAddress CreaIndirizzoRisposta(ContactRequest richiesta)
+    {
+        var indirizzo = richiesta.Email.Trim();
+        var nomeVisualizzato = new string(richiesta.Nome
+            .Select(carattere => char.IsControl(carattere) || carattere == '"' || carattere == '\\' ? ' ' : carattere)
+            .ToArray()).Trim();
+
+        while (nomeVisualizzato.Contains("  ", StringComparison.Ordinal))
+        {
+            nomeVisualizzato = nomeVisualizzato.Replace("  ", " ", StringComparison.Ordinal);
+        }
+
+        if (nomeVisualizzato.Length > 100)
+        {
+            nomeVisualizzato = nomeVisualizzato[..100].TrimEnd();
+        }
+
+        return nomeVisualizzato.Length == 0
+            ? new MailAddress(indirizzo)
+            : new MailAddress(indirizzo, nomeVisualizzato);
     }
 }

@@ -21,7 +21,7 @@ dotnet user-secrets set "Email:SenderAddress" "psi.maddalenapimponi@gmail.com" -
 dotnet user-secrets set "Email:SenderPassword" "PASSWORD-APP-GMAIL" --project .\SitoMadda.UI
 ```
 
-Con Gmail usa una password per le app, non la password normale dell'account. Il server e la porta predefiniti sono `smtp.gmail.com` e `587`. Senza credenziali il modulo mostra un messaggio di configurazione e non dichiara falsamente che l'email sia stata inviata.
+Con Gmail usa una password per le app, non la password normale dell'account. Il server e la porta predefiniti sono `smtp.gmail.com` e `587`. Senza credenziali il modulo avvisa che l'invio non è disponibile, indica l'indirizzo email diretto come alternativa e registra il dettaglio nei log; non dichiara mai che l'email sia stata inviata.
 
 ## Pagine
 
@@ -31,6 +31,8 @@ Con Gmail usa una password per le app, non la password normale dell'account. Il 
 - `/domande-frequenti` FAQ
 - `/contatti` Modulo email, recapiti e mappe Google Maps di Orvieto e Narni
 - `/privacy` Informativa preliminare da completare e verificare prima della pubblicazione
+
+Qualsiasi altro percorso viene servito con stato HTTP 404 dalla pagina `PaginaNonTrovata`. Le intestazioni di sicurezza (`nosniff`, `Referrer-Policy`, `Permissions-Policy` e una CSP in modalità di sola segnalazione) sono applicate da `Program.cs`; HSTS e redirect HTTPS restano attivi solo fuori dall'ambiente di sviluppo.
 
 Il ritratto in `SitoMadda.UI\wwwroot\images` è stato ritagliato dalla schermata di riferimento. Le schermate originali restano nella cartella `Sito Madda` sul Desktop.
 

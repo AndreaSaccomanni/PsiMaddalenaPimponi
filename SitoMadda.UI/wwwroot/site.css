@@ -187,7 +187,8 @@ blockquote cite { display: block; margin-top: 10px; color: var(--muted); font-fa
 .footer-inner > div:not(.footer-about) a { width: fit-content; margin: 0 0 6px; display: block; color: #e1d1dc; text-decoration: none; font-size: 12px; }
 .footer-bottom { padding-top: 15px; display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,.14); color: #e1d1dc; font-size: 11px; }
 .whatsapp-float { position: fixed; z-index: 15; right: 22px; bottom: 18px; padding: 12px 18px; color: #fff; background: var(--plum); border: 1px solid rgba(255,255,255,.25); border-radius: 12px; box-shadow: 0 5px 18px rgba(56,32,49,.16); text-decoration: none; font-size: 12px; font-weight: 600; }
-#blazor-error-ui { display: none; }
+#blazor-error-ui { position: fixed; z-index: 1000; left: 18px; right: 18px; bottom: 18px; max-width: 560px; margin-inline: auto; padding: 15px 20px; display: none; color: #812d3d; background: #f8e9ed; border: 1px solid #e7c3cd; border-radius: 12px; box-shadow: 0 8px 24px rgba(69, 43, 59, .16); font-size: 13px; }
+#blazor-error-ui .reload, #blazor-error-ui .dismiss { margin-left: 12px; font-weight: 600; text-decoration: underline; cursor: pointer; }
 
 @media (max-width: 760px) {
     .section-shell, .header-inner, .footer-inner, .footer-bottom { width: min(100% - 36px, var(--content)); }
