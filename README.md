@@ -39,6 +39,8 @@ I comandi salvano le credenziali nei **User Secrets locali** del progetto, non i
 - `/contatti` Modulo email, recapiti e mappe Google Maps di Orvieto e Narni
 - `/privacy` Informativa preliminare da completare e verificare prima della pubblicazione
 
+Qualsiasi altro percorso viene servito con stato HTTP 404 dalla pagina `PaginaNonTrovata`. Le intestazioni di sicurezza (`nosniff`, `Referrer-Policy`, `Permissions-Policy` e una CSP in modalità di sola segnalazione) sono applicate da `Program.cs`; HSTS e redirect HTTPS restano attivi solo fuori dall'ambiente di sviluppo.
+
 Il ritratto in `SitoMadda.UI\wwwroot\images` è stato ritagliato dalla schermata di riferimento. Le schermate originali restano nella cartella `Sito Madda` sul Desktop.
 
 ## Struttura del codice

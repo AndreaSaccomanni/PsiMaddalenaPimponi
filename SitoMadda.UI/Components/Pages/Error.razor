@@ -1,19 +1,20 @@
 ﻿@page "/Error"
 @using System.Diagnostics
 
-<PageTitle>Errore</PageTitle>
+<PageTitle>Errore · Maddalena Pimponi</PageTitle>
 
-<h1 class="text-danger">Si è verificato un errore.</h1>
-<h2 class="text-danger">La richiesta non è stata completata.</h2>
+<PageHero Titolo="Si è verificato un errore" Descrizione="La richiesta non è stata completata. Riprova tra poco." />
 
-@if (MostraIdentificativoRichiesta)
-{
-    <p>
-        <strong>Identificativo richiesta:</strong> <code>@IdentificativoRichiesta</code>
-    </p>
-}
+<section class="section section-white">
+    <div class="section-shell">
+        @if (MostraIdentificativoRichiesta)
+        {
+            <p><strong>Identificativo richiesta:</strong> <code>@IdentificativoRichiesta</code></p>
+        }
 
-<p>Se il problema persiste, riprova più tardi o torna alla <a href="/">pagina iniziale</a>.</p>
+        <p>Se il problema persiste, riprova più tardi o torna alla <a class="text-link" href="/">pagina iniziale</a>.</p>
+    </div>
+</section>
 
 @code{
     [CascadingParameter]
