@@ -17,12 +17,14 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 95px; }
 body { margin: 0; color: var(--ink); background: var(--paper); font-family: "DM Sans", "Trebuchet MS", Arial, sans-serif; font-size: 15px; line-height: 1.75; }
+img, iframe { max-width: 100%; }
 a { color: inherit; }
 a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid #b983a2; outline-offset: 3px; }
 h1, h2, h3, p { margin-top: 0; }
 h1, h2, h3 { font-family: "Playfair Display", Georgia, serif; font-weight: 400; line-height: 1.15; }
 h2 { font-size: clamp(2rem, 3.4vw, 2.85rem); }
 .section-shell { width: min(var(--content), calc(100% - 48px)); margin-inline: auto; }
+.hero-copy, .hero-art, .intro-grid > *, .story-grid > *, .topic-row > *, .contact-layout > *, .footer-inner > * { min-width: 0; }
 .section { padding: 88px 0; }
 .section-white { background: var(--paper); }
 .section-blush { background: var(--blush); }
@@ -223,8 +225,8 @@ blockquote cite { display: block; margin-top: 10px; color: var(--muted); font-fa
     .timeline li > span { font-size: 11px; }
     .topic-row { padding-block: 48px; grid-template-columns: 1fr; gap: 15px; }
     .topic-row h2 { font-size: 26px; }
-    .topic-nav { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; }
-    .topic-nav a { flex: 0 0 auto; }
+    .topic-nav { justify-content: center; flex-wrap: wrap; }
+    .topic-nav a { max-width: 100%; }
     .faq-group { margin-bottom: 36px; }
     .contact-layout, .map-grid { grid-template-columns: 1fr; gap: 20px; }
     .contact-form-card { padding: 21px 17px; }
@@ -244,4 +246,9 @@ blockquote cite { display: block; margin-top: 10px; color: var(--muted); font-fa
     .footer-inner { grid-template-columns: 1fr; }
     .footer-about { grid-column: auto; }
     .whatsapp-float { right: 12px; bottom: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
