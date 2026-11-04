@@ -1,0 +1,28 @@
+﻿@page "/Error"
+@using System.Diagnostics
+
+<PageTitle>Errore</PageTitle>
+
+<h1 class="text-danger">Si è verificato un errore.</h1>
+<h2 class="text-danger">La richiesta non è stata completata.</h2>
+
+@if (MostraIdentificativoRichiesta)
+{
+    <p>
+        <strong>Identificativo richiesta:</strong> <code>@IdentificativoRichiesta</code>
+    </p>
+}
+
+<p>Se il problema persiste, riprova più tardi o torna alla <a href="/">pagina iniziale</a>.</p>
+
+@code{
+    [CascadingParameter]
+    private HttpContext? ContestoHttp { get; set; }
+
+    private string? IdentificativoRichiesta { get; set; }
+    private bool MostraIdentificativoRichiesta => !string.IsNullOrEmpty(IdentificativoRichiesta);
+
+    /// <summary>Recupera l'identificativo utile a correlare l'errore con i log dell'applicazione.</summary>
+    protected override void OnInitialized() =>
+        IdentificativoRichiesta = Activity.Current?.Id ?? ContestoHttp?.TraceIdentifier;
+}

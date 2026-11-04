@@ -1,0 +1,75 @@
+﻿@inherits LayoutComponentBase
+@inject SitoMadda.Application.Services.SiteContent contenutiSito
+
+<header class="site-header">
+    <div class="header-inner">
+        <a class="brand" href="/" aria-label="Maddalena Pimponi, pagina iniziale">
+            <span class="brand-signature">Maddalena Pimponi</span>
+            <span class="brand-subtitle">Psicologa · Orvieto · Narni · Online</span>
+        </a>
+        <nav class="desktop-nav" aria-label="Navigazione principale">
+            <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
+            <NavLink href="/chi-sono">Chi sono</NavLink>
+            <NavLink href="/di-cosa-mi-occupo">Di cosa mi occupo</NavLink>
+            <NavLink href="/domande-frequenti">Domande frequenti</NavLink>
+            <NavLink class="nav-contact" href="/contatti">Contatti</NavLink>
+        </nav>
+        <details class="mobile-nav">
+            <summary aria-label="Apri il menu">Menu</summary>
+            <nav aria-label="Navigazione principale">
+                <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
+                <NavLink href="/chi-sono">Chi sono</NavLink>
+                <NavLink href="/di-cosa-mi-occupo">Di cosa mi occupo</NavLink>
+                <NavLink href="/domande-frequenti">Domande frequenti</NavLink>
+                <NavLink href="/contatti">Contatti</NavLink>
+                <NavLink href="/privacy">Privacy Policy</NavLink>
+            </nav>
+        </details>
+    </div>
+</header>
+
+<main>
+    @Body
+</main>
+
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-about">
+            <a class="brand brand-light" href="/">
+                <span class="brand-signature">Maddalena Pimponi</span>
+                <span class="footer-spiral" aria-hidden="true">〰</span>
+                <span class="brand-subtitle">Psicologa</span>
+            </a>
+            <p>Psicologa clinica dello sviluppo · Albo degli Psicologi dell’Umbria n. 1913</p>
+            <p>Chiedere aiuto è una forma di cura verso se stessi.<br />Orvieto · Narni · Online</p>
+        </div>
+        <div>
+            <h2>Pagine</h2>
+            <a href="/">Home</a>
+            <a href="/chi-sono">Chi sono</a>
+            <a href="/di-cosa-mi-occupo">Di cosa mi occupo</a>
+            <a href="/domande-frequenti">Domande frequenti</a>
+            <a href="/contatti">Contatti</a>
+            <a href="/privacy">Privacy Policy</a>
+        </div>
+        <div>
+            <h2>Contatti</h2>
+            <a href="@contenutiSito.CollegamentoTelefono">@contenutiSito.TelefonoVisualizzato</a>
+            <a href="@contenutiSito.CollegamentoWhatsApp" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+            <a href="mailto:@contenutiSito.IndirizzoEmail">@contenutiSito.IndirizzoEmail</a>
+            <a href="@contenutiSito.CollegamentoInstagram" target="_blank" rel="noopener noreferrer">Instagram</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>© @DateTime.Now.Year Dott.ssa Maddalena Pimponi · Psicologa</span>
+        <span>Orvieto · Narni · Online</span>
+    </div>
+</footer>
+
+<a class="whatsapp-float" href="@contenutiSito.CollegamentoWhatsApp" target="_blank" rel="noopener noreferrer">Scrivimi su WhatsApp</a>
+
+<div id="blazor-error-ui">
+    Si è verificato un errore.
+    <a href="" class="reload">Ricarica</a>
+    <a class="dismiss">Chiudi</a>
+</div>

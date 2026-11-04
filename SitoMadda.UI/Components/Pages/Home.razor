@@ -1,0 +1,103 @@
+﻿@page "/"
+@inject SiteContent contenutiSito
+
+<PageTitle>Home · Maddalena Pimponi, psicologa</PageTitle>
+
+<section class="hero section-shell">
+    <div class="hero-copy">
+        <p class="eyebrow"><span class="spiral-mark">◎</span> Psicologa clinica dello sviluppo</p>
+        <p class="hero-title-prefix">Dott.ssa</p>
+        <h1>Maddalena<br />Pimponi</h1>
+        <p class="hero-subtitle">Psicologa a Orvieto, Narni e online</p>
+        <p class="hero-description">Consulenza e sostegno psicologico, con un focus sulla fascia pre-adolescenziale, adolescenziale e dei giovani adulti.</p>
+        <div class="button-row">
+            <a class="button button-primary" href="/contatti">Prenota un primo colloquio <span aria-hidden="true">→</span></a>
+            <a class="button button-outline" href="@contenutiSito.CollegamentoWhatsApp" target="_blank" rel="noopener noreferrer">◉ &nbsp; Scrivimi su WhatsApp</a>
+        </div>
+        <ul class="credentials">
+            <li>♧ &nbsp; Albo Psicologi dell’Umbria n. 1913</li>
+            <li>♧ &nbsp; Tutor dell’apprendimento (DSA, BES, ADHD)</li>
+        </ul>
+    </div>
+    <div class="hero-art" aria-label="Chiedere aiuto è una forma di cura verso se stessi">
+        <div class="art-knot" aria-hidden="true">∞</div>
+        <p>Chiedere aiuto è una<br />forma di cura verso se<br />stessi/e</p>
+        <span class="art-signature">Maddalena Pimponi</span>
+        <img class="portrait portrait-small" src="images/maddalena.jpg" alt="Dott.ssa Maddalena Pimponi" />
+    </div>
+</section>
+
+<section class="section section-white">
+    <div class="section-shell intro-grid">
+        <div>
+            <span class="label-tag">Mi presento</span>
+            <h2>Una presa in carico<br />della persona<br />a 360 gradi</h2>
+        </div>
+        <div class="intro-text">
+            <p>Sono una psicologa laureata a Padova in Psicologia Clinica dello Sviluppo, con un focus sulla fascia pre-adolescenziale, adolescenziale e dei giovani adulti.</p>
+            <p>Credo in una presa in carico della persona a 360 gradi, che tenga conto della complessità umana e delle sue relazioni, nel rispetto dei tempi e dei modi di ognuna e di ognuno.</p>
+            <a class="text-link" href="/chi-sono">Scopri la mia storia <span>→</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="section section-blush">
+    <div class="section-shell centered">
+        <p class="eyebrow"><span class="spiral-mark">◎</span> Di cosa mi occupo</p>
+        <h2 class="section-heading">Consulenza e sostegno<br />psicologico per:</h2>
+        <div class="paper-grid">
+            <a class="paper-card" href="/di-cosa-mi-occupo#risorse">Sviluppare e potenziare le risorse individuali <span>→</span></a>
+            <a class="paper-card" href="/di-cosa-mi-occupo#qualita">Migliorare la qualità di vita personale, familiare e sociale <span>→</span></a>
+            <a class="paper-card" href="/di-cosa-mi-occupo#ansia">Gestire ansia e stress <span>→</span></a>
+            <a class="paper-card" href="/di-cosa-mi-occupo#alimentazione">Gestire difficoltà legate alla sfera dell’alimentazione <span>→</span></a>
+            <a class="paper-card" href="/di-cosa-mi-occupo#disagio">Gestire il disagio emotivo, comportamentale e relazionale <span>→</span></a>
+            <a class="paper-card" href="/di-cosa-mi-occupo#crisi">Affrontare crisi e disagi momentanei <span>→</span></a>
+        </div>
+        <p class="handwritten">Chiedere aiuto è una forma di cura verso se stessi/e</p>
+    </div>
+</section>
+
+<section class="section section-white">
+    <div class="section-shell locations-section">
+        <div class="section-heading-row">
+            <div>
+                <p class="eyebrow"><span class="spiral-mark">◎</span> Dove ricevo</p>
+                <h2>Orvieto, Narni e online</h2>
+                <p class="muted">Ricevo su appuntamento in due studi della provincia di Terni e svolgo colloqui online.</p>
+            </div>
+            <a class="text-link" href="/contatti">Informazioni e appuntamenti <span>→</span></a>
+        </div>
+        <div class="location-grid">
+            @foreach (var studio in contenutiSito.Studi)
+            {
+                <article class="location-card">
+                    <span class="location-icon">◎</span>
+                    <div>
+                        <h3>@studio.Nome</h3>
+                        <p><strong>@studio.Struttura</strong><br />@studio.Indirizzo<br />@studio.Citta</p>
+                        <a class="text-link" href="@studio.UrlRicercaMappa" target="_blank" rel="noopener noreferrer">Mostra la mappa <span>→</span></a>
+                    </div>
+                </article>
+            }
+            <article class="location-card location-online">
+                <span class="location-icon">◎</span>
+                <div>
+                    <h3>Online</h3>
+                    <p>Colloqui in videochiamata, ovunque tu sia.</p>
+                    <a class="text-link" href="/contatti">Chiedi un colloquio online <span>→</span></a>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="section section-blush">
+    <div class="section-shell closing-cta">
+        <div>
+            <p class="eyebrow"><span class="spiral-mark">◎</span> Per informazioni</p>
+            <h2>Fissiamo un<br /><em>primo colloquio</em></h2>
+            <p>Non serve avere le idee chiare: bastano poche righe. Ti risponderò per trovare insieme il momento giusto.</p>
+        </div>
+        <a class="button button-primary" href="/contatti">Scrivimi <span>→</span></a>
+    </div>
+</section>

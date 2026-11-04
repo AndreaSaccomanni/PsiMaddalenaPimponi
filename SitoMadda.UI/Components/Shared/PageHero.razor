@@ -1,0 +1,20 @@
+@using Microsoft.AspNetCore.Components
+
+<section class="page-hero">
+    <div class="section-shell page-hero-inner">
+        <p class="breadcrumbs"><a href="/">Home</a><span>/</span>@Titolo</p>
+        <h1>@Titolo</h1>
+        <p>@Descrizione</p>
+        <span class="hero-flourish" aria-hidden="true">∞</span>
+    </div>
+</section>
+
+@code {
+    /// <summary>Imposta il titolo principale della testata della pagina.</summary>
+    [Parameter, EditorRequired]
+    public string Titolo { get; set; } = string.Empty;
+
+    /// <summary>Imposta il testo introduttivo visualizzato sotto il titolo.</summary>
+    [Parameter, EditorRequired]
+    public string Descrizione { get; set; } = string.Empty;
+}
