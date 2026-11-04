@@ -9,6 +9,10 @@ creatoreApp.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 creatoreApp.Services.AddSingleton<SiteContent>();
 creatoreApp.Services.AddInfrastructure(creatoreApp.Configuration);
+creatoreApp.Services.AddResponseCompression(opzioni =>
+{
+    opzioni.EnableForHttps = true;
+});
 
 var applicazioneWeb = creatoreApp.Build();
 
@@ -36,8 +40,13 @@ applicazioneWeb.Use(async (contesto, successivo) =>
     await successivo(contesto);
 });
 
-// Serve i file statici e registra le rotte dei componenti Razor.
-applicazioneWeb.UseStaticFiles();
+// Comprime le risposte testuali e serve i file statici con cache breve lato browser.
+applicazioneWeb.UseResponseCompression();
+applicazioneWeb.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = contesto =>
+        contesto.Context.Response.Headers.CacheControl = "public, max-age=3600"
+});
 
 // Le rotte sconosciute mostrano la pagina 404 mantenendo lo stato HTTP 404.
 applicazioneWeb.UseStatusCodePagesWithReExecute("/pagina-non-trovata");

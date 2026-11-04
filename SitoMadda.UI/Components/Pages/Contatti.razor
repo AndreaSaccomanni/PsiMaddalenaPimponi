@@ -50,7 +50,7 @@
                         <small>Per tutelare la tua privacy, evita di inserire informazioni sanitarie o dettagli particolarmente sensibili.</small>
                     </div>
                     <div class="form-field full-field consent-field">
-                        <label><InputCheckbox @bind-Value="richiesta.PrivacyAccettata" /> Confermo di aver letto l’<a href="/privacy" target="_blank">informativa privacy</a> e acconsento a essere ricontattato/a.</label>
+                        <label><InputCheckbox @bind-Value="richiesta.PrivacyAccettata" /> Confermo di aver letto l’<a href="/privacy" target="_blank" rel="noopener noreferrer">informativa privacy</a> e acconsento a essere ricontattato/a.</label>
                     </div>
                     <div class="form-field full-field">
                         <button class="button button-primary" type="submit" disabled="@invioInCorso">
@@ -58,7 +58,7 @@
                         </button>
                         @if (!string.IsNullOrWhiteSpace(messaggioStato))
                         {
-                            <p class="form-status @(invioRiuscito ? "success" : "error")" role="status">@messaggioStato</p>
+                            <p class="form-status @(invioRiuscito ? "success" : "error")" role="@(invioRiuscito ? "status" : "alert")">@messaggioStato</p>
                         }
                     </div>
                 </div>
