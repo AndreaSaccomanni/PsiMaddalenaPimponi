@@ -1,10 +1,67 @@
-// Riporta la pagina in cima dopo la navigazione Blazor, mantenendo i collegamenti alle sezioni.
-Blazor.addEventListener("enhancedload", () => {
-    if (!window.location.hash) {
-        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    }
+// Micro-interazioni della navigazione: header compatto allo scroll, indice attivo
+// nella pagina dei temi e chiusura del menu mobile con Escape o clic esterno.
+(() => {
+    const intestazione = document.getElementById("site-header");
+    const menu = document.querySelector(".mobile-nav");
 
-    document.querySelectorAll(".mobile-nav[open]").forEach((menu) => {
-        menu.removeAttribute("open");
+    const chiudiMenu = () => menu?.removeAttribute("open");
+
+    const aggiornaIntestazione = () => {
+        intestazione?.classList.toggle("is-scrolled", window.scrollY > 8);
+    };
+
+    const navTemi = document.querySelector(".topic-nav");
+    const sezioniTemi = navTemi
+        ? [...document.querySelectorAll(".topic-row[id]")]
+        : [];
+
+    const aggiornaTemaAttivo = () => {
+        if (!navTemi || sezioniTemi.length === 0) {
+            return;
+        }
+
+        const limite = window.innerHeight * 0.35;
+        let attiva = sezioniTemi[0];
+
+        for (const sezione of sezioniTemi) {
+            if (sezione.getBoundingClientRect().top <= limite) {
+                attiva = sezione;
+            }
+        }
+
+        for (const collegamento of navTemi.querySelectorAll("a")) {
+            collegamento.classList.toggle(
+                "is-active",
+                collegamento.getAttribute("href") === `#${attiva.id}`);
+        }
+    };
+
+    const aggiorna = () => {
+        aggiornaIntestazione();
+        aggiornaTemaAttivo();
+    };
+
+    document.addEventListener("click", (evento) => {
+        if (menu?.hasAttribute("open") && !menu.contains(evento.target)) {
+            chiudiMenu();
+        }
     });
-});
+
+    document.addEventListener("keydown", (evento) => {
+        if (evento.key === "Escape") {
+            chiudiMenu();
+        }
+    });
+
+    window.addEventListener("scroll", aggiorna, { passive: true });
+    window.addEventListener("resize", aggiorna, { passive: true });
+
+    // Blazor riusa il documento: dopo ogni navigazione riallinea lo stato.
+    Blazor.addEventListener("enhancedload", () => {
+        chiudiMenu();
+        aggiornaIntestazione();
+        aggiornaTemaAttivo();
+    });
+
+    aggiorna();
+})();

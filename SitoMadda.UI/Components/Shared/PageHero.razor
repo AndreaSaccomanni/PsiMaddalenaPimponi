@@ -1,11 +1,15 @@
-@using Microsoft.AspNetCore.Components
+﻿@using Microsoft.AspNetCore.Components
 
 <section class="page-hero">
     <div class="section-shell page-hero-inner">
         <nav class="breadcrumbs" aria-label="Percorso"><a href="/">Home</a><span>/</span>@Titolo</nav>
         <h1>@Titolo</h1>
         <p>@Descrizione</p>
-        <span class="hero-flourish" aria-hidden="true">∞</span>
+        <svg class="hero-flourish" viewBox="0 0 200 120" width="200" height="120" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+            <path d="M4 92c34 0 46-52 74-52s40 52 74 52" />
+            <path d="M4 108c34 0 46-52 74-52s40 52 74 52" opacity=".6" />
+            <circle cx="152" cy="40" r="3" fill="currentColor" stroke="none" />
+        </svg>
     </div>
 </section>
 

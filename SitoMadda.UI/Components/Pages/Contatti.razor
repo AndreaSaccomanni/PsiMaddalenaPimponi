@@ -1,4 +1,4 @@
-@page "/contatti"
+﻿@page "/contatti"
 @rendermode InteractiveServer
 @inject SiteContent contenutiSito
 @inject IEmailSender servizioEmail
@@ -50,7 +50,7 @@
                         <small>Per tutelare la tua privacy, evita di inserire informazioni sanitarie o dettagli particolarmente sensibili.</small>
                     </div>
                     <div class="form-field full-field consent-field">
-                        <label><InputCheckbox @bind-Value="richiesta.PrivacyAccettata" /> Confermo di aver letto l’<a href="/privacy" target="_blank" rel="noopener noreferrer">informativa privacy</a> e acconsento a essere ricontattato/a.</label>
+                        <label><InputCheckbox @bind-Value="richiesta.PrivacyAccettata" /> <span>Confermo di aver letto l’<a href="/privacy" target="_blank" rel="noopener noreferrer">informativa privacy</a> e acconsento a essere ricontattato/a.</span></label>
                     </div>
                     <div class="form-field full-field">
                         <button class="button button-primary" type="submit" disabled="@invioInCorso">
@@ -67,10 +67,41 @@
         </div>
 
         <aside class="contact-aside">
-            <a class="contact-method" href="@contenutiSito.CollegamentoTelefono"><span class="method-icon">☎</span><span><small>Telefono</small>@contenutiSito.TelefonoVisualizzato</span></a>
-            <a class="contact-method" href="@contenutiSito.CollegamentoWhatsApp" target="_blank" rel="noopener noreferrer"><span class="method-icon">◉</span><span><small>WhatsApp</small>Scrivimi un messaggio</span></a>
-            <a class="contact-method" href="mailto:@contenutiSito.IndirizzoEmail"><span class="method-icon">✉</span><span><small>Email</small>@contenutiSito.IndirizzoEmail</span></a>
-            <div class="contact-method"><span class="method-icon">⌖</span><span><small>Ricevo su appuntamento</small>Orvieto · Narni · Online</span></div>
+            <a class="contact-method" href="@contenutiSito.CollegamentoTelefono">
+                <span class="method-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                        <path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.7a2 2 0 0 1 2-2.2Z" />
+                    </svg>
+                </span>
+                <span><small>Telefono</small>@contenutiSito.TelefonoVisualizzato</span>
+            </a>
+            <a class="contact-method" href="@contenutiSito.CollegamentoWhatsApp" target="_blank" rel="noopener noreferrer">
+                <span class="method-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.3A8.5 8.5 0 1 1 20.5 11.6Z" />
+                        <path d="M8.7 8.4c.3-.5.7-.5 1-.5h.6c.2 0 .4.1.5.4l.7 1.6c.1.3 0 .5-.2.7l-.5.6a6 6 0 0 0 3.1 3.1l.6-.5c.2-.2.4-.3.7-.2l1.6.7c.3.1.4.3.4.5v.6c0 .4-.1.8-.6 1a2 2 0 0 1-1.5.4 9 9 0 0 1-7.3-7.3 2 2 0 0 1 .4-1.6Z" />
+                    </svg>
+                </span>
+                <span><small>WhatsApp</small>Scrivimi un messaggio</span>
+            </a>
+            <a class="contact-method" href="mailto:@contenutiSito.IndirizzoEmail">
+                <span class="method-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
+                        <path d="m4 7 8 6 8-6" />
+                    </svg>
+                </span>
+                <span><small>Email</small>@contenutiSito.IndirizzoEmail</span>
+            </a>
+            <div class="contact-method">
+                <span class="method-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11Z" />
+                        <circle cx="12" cy="10" r="2.6" />
+                    </svg>
+                </span>
+                <span><small>Ricevo su appuntamento</small>Orvieto · Narni · Online</span>
+            </div>
         </aside>
     </div>
 </section>
@@ -78,14 +109,14 @@
 <section class="section section-blush">
     <div class="section-shell">
         <div class="section-heading-row">
-            <div><p class="eyebrow"><span class="spiral-mark">◎</span> Dove ricevo</p><h2>Gli studi</h2></div>
+            <div><p class="eyebrow"><span class="spiral-mark" aria-hidden="true"></span> Dove ricevo</p><h2>Gli studi</h2></div>
         </div>
         <div class="map-grid">
             @foreach (var studio in contenutiSito.Studi)
             {
                 <article class="map-card">
                     <div class="map-details">
-                        <p class="eyebrow"><span class="spiral-mark">◎</span> @studio.Nome</p>
+                        <p class="eyebrow"><span class="spiral-mark" aria-hidden="true"></span> @studio.Nome</p>
                         <h3>@studio.Struttura</h3>
                         <p>@studio.Indirizzo<br />@studio.Citta</p>
                         <a class="button button-outline" href="@studio.UrlRicercaMappa" target="_blank" rel="noopener noreferrer">Apri in Google Maps <span>↗</span></a>

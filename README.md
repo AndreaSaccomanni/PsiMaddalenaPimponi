@@ -41,7 +41,11 @@ I comandi salvano le credenziali nei **User Secrets locali** del progetto, non i
 
 Qualsiasi altro percorso viene servito con stato HTTP 404 dalla pagina `PaginaNonTrovata`. Le intestazioni di sicurezza (`nosniff`, `Referrer-Policy`, `Permissions-Policy` e una CSP in modalità di sola segnalazione) sono applicate da `Program.cs`; HSTS e redirect HTTPS restano attivi solo fuori dall'ambiente di sviluppo.
 
-Il ritratto in `SitoMadda.UI\wwwroot\images` è stato ritagliato dalla schermata di riferimento. Le schermate originali restano nella cartella `Sito Madda` sul Desktop.
+Il ritratto in `SitoMadda.UI\wwwroot\images` è stato ritagliato dalla schermata di riferimento. Le schermate originali restano nella cartella `Sito Madda` sul Desktop. L'immagine disponibile è quadrata e di 180 px: per una resa nitida sui monitor ad alta densità va sostituita con un ritratto di almeno 900 × 1100 px.
+
+## Stile e componenti
+
+`SitoMadda.UI\wwwroot\site.css` contiene i token del design system (palette, tipografia fluida, raggi, ombre, spaziature) e i componenti riutilizzabili: header con navigazione compatta, card dei temi, timeline, navigazione temi adesiva, FAQ a fisarmonica, modulo contatti e footer. `wwwroot\js\navigation.js` gestisce header allo scroll, voce attiva della navigazione temi, chiusura del menu mobile con Escape o clic esterno, e riallinea lo stato dopo le navigazioni Blazor. Tutti i contrasti del testo sono almeno 4.5:1 e le animazioni rispettano `prefers-reduced-motion`.
 
 ## Struttura del codice
 

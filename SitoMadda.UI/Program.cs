@@ -45,7 +45,14 @@ applicazioneWeb.UseResponseCompression();
 applicazioneWeb.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = contesto =>
-        contesto.Context.Response.Headers.CacheControl = "public, max-age=3600"
+    {
+        // CSS e JS cambiano con i deploy: il browser rivalida, le immagini restano in cache.
+        var percorso = contesto.Context.Request.Path.Value ?? string.Empty;
+        contesto.Context.Response.Headers.CacheControl = percorso.EndsWith(".css", StringComparison.OrdinalIgnoreCase) ||
+            percorso.EndsWith(".js", StringComparison.OrdinalIgnoreCase)
+            ? "no-cache"
+            : "public, max-age=3600";
+    }
 });
 
 // Le rotte sconosciute mostrano la pagina 404 mantenendo lo stato HTTP 404.
