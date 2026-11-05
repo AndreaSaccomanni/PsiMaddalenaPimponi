@@ -2,14 +2,17 @@
 
 <section class="page-hero">
     <div class="section-shell page-hero-inner">
-        <nav class="breadcrumbs" aria-label="Percorso"><a href="/">Home</a><span>/</span>@Titolo</nav>
-        <h1>@Titolo</h1>
-        <p>@Descrizione</p>
-        <svg class="hero-flourish" viewBox="0 0 200 120" width="200" height="120" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
-            <path d="M4 92c34 0 46-52 74-52s40 52 74 52" />
-            <path d="M4 108c34 0 46-52 74-52s40 52 74 52" opacity=".6" />
-            <circle cx="152" cy="40" r="3" fill="currentColor" stroke="none" />
-        </svg>
+        <div class="page-hero-copy">
+            <h1>@Titolo</h1>
+            <p>@Descrizione</p>
+        </div>
+
+        @if (Illustrazione is not null)
+        {
+            <div class="page-hero-art" aria-hidden="true">
+                <IllustrazioneTestata Tipo="Illustrazione.Value" />
+            </div>
+        }
     </div>
 </section>
 
@@ -21,4 +24,11 @@
     /// <summary>Imposta il testo introduttivo visualizzato sotto il titolo.</summary>
     [Parameter, EditorRequired]
     public string Descrizione { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Disegno decorativo opzionale a destra del titolo. Se non viene indicato la testata
+    /// resta solo testo, occupando l'intera larghezza disponibile.
+    /// </summary>
+    [Parameter]
+    public IllustrazioneTestata.IllustrazioneTestataTipo? Illustrazione { get; set; }
 }

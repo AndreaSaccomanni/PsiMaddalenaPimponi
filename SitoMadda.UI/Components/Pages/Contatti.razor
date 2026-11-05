@@ -84,6 +84,15 @@
                 </span>
                 <span><small>WhatsApp</small>Scrivimi un messaggio</span>
             </a>
+            <a class="contact-method" href="@contenutiSito.CollegamentoMioDottore" target="_blank" rel="noopener noreferrer">
+                <span class="method-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3 5 6v6c0 4.2 2.9 7.9 7 9 4.1-1.1 7-4.8 7-9V6l-7-3Z" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                </span>
+                <span><small>Profilo professionale</small>MioDottore</span>
+            </a>
             <a class="contact-method" href="mailto:@contenutiSito.IndirizzoEmail">
                 <span class="method-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -138,17 +147,30 @@
     private bool invioRiuscito;
     private string? messaggioStato;
 
-    /// <summary>Verifica il consenso, invia la richiesta via email e mostra l'esito alla persona.</summary>
+    /// <summary>
+    /// Gestisce l'invio del modulo: controlla il consenso, chiama il servizio email e
+    /// comunica l'esito in pagina.
+    /// </summary>
+    /// <remarks>
+    /// Il consenso privacy non è una validazione del modello ma una condizione esplicita:
+    /// senza spunta il messaggio non parte. Gli errori di configurazione e di invio vengono
+    /// registrati nei log e tradotti in un testo generico per il visitatore, che altrimenti
+    /// vedrebbe dettagli tecnici. Al termine il pulsante torna attivo e, in caso di successo,
+    /// il modulo viene svuotato.
+    /// </remarks>
     private async Task InviaRichiestaAsync()
     {
         messaggioStato = null;
         invioRiuscito = false;
+
+        // La casella non ha attributi di validazione: il controllo va fatto qui, lato server.
         if (!richiesta.PrivacyAccettata)
         {
             messaggioStato = "Per inviare il messaggio, conferma di aver letto l’informativa privacy.";
             return;
         }
 
+        // Il flag disabilita il pulsante mentre la richiesta è in corso ed evita invii doppi.
         invioInCorso = true;
         try
         {
@@ -157,11 +179,14 @@
             invioRiuscito = true;
             messaggioStato = "Messaggio inviato correttamente. Grazie per avermi scritto.";
         }
+        // Configurazione SMTP assente: è un caso di sviluppo, non va mostrato nei dettagli.
         catch (InvalidOperationException errore)
         {
             logger.LogWarning(errore, "Modulo contatti non configurato: invio email non disponibile.");
             messaggioStato = "Il modulo non è al momento attivo. Puoi scrivermi direttamente a " + contenutiSito.IndirizzoEmail + ".";
         }
+        // Qualsiasi altro errore (SMTP, formato degli indirizzi, annullamento): log completo,
+        // al visitatore solo l'alternativa concreta, cioè scrivere all'indirizzo diretto.
         catch (Exception errore)
         {
             logger.LogError(errore, "Invio email di contatto non riuscito.");

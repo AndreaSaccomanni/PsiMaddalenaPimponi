@@ -1,4 +1,4 @@
-using SitoMadda.UI.Components;
+﻿using SitoMadda.UI.Components;
 using SitoMadda.Application.Services;
 using SitoMadda.Infrastructure;
 
@@ -40,7 +40,10 @@ applicazioneWeb.Use(async (contesto, successivo) =>
     await successivo(contesto);
 });
 
-// Comprime le risposte testuali e serve i file statici con cache breve lato browser.
+// Ordine voluto: prima la compressione (altrimenti comprimerebbe un corpo già scritto), poi
+// i file statici con cache breve, infine la pagina 404 per le rotte sconosciute.
+// CSS e JS sono rivalidati a ogni caricamento perché cambiano con i deploy; le immagini
+// possono restare in cache del browser per un'ora.
 applicazioneWeb.UseResponseCompression();
 applicazioneWeb.UseStaticFiles(new StaticFileOptions
 {

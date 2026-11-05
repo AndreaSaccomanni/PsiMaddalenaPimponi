@@ -1,4 +1,4 @@
-using SitoMadda.Domain.Models;
+﻿using SitoMadda.Domain.Models;
 
 namespace SitoMadda.Application.Services;
 
@@ -22,6 +22,9 @@ public sealed class SiteContent
 
     /// <summary>Collegamento al profilo Instagram professionale.</summary>
     public string CollegamentoInstagram => "https://www.instagram.com/psi.maddalenapimponi/";
+
+    /// <summary>Collegamento al profilo professionale su MioDottore indicato nella bio di Instagram.</summary>
+    public string CollegamentoMioDottore => "https://www.miodottore.it/profilo/maddalena-pimponi";
 
     /// <summary>Elenco degli studi in cui la psicologa riceve su appuntamento.</summary>
     public IReadOnlyList<StudioLocation> Studi { get; } =
