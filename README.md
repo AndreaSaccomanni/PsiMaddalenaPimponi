@@ -1,4 +1,4 @@
-# Sito Maddalena Pimponi
+﻿# Sito Maddalena Pimponi
 
 Soluzione Visual Studio in C# e Blazor Web App (.NET 8), senza database, autenticazione o API. I progetti separano l'interfaccia, la logica applicativa, i modelli di dominio e le integrazioni esterne.
 
@@ -41,7 +41,11 @@ I comandi salvano le credenziali nei **User Secrets locali** del progetto, non i
 
 Qualsiasi altro percorso viene servito con stato HTTP 404 dalla pagina `PaginaNonTrovata`. Le intestazioni di sicurezza (`nosniff`, `Referrer-Policy`, `Permissions-Policy` e una CSP in modalità di sola segnalazione) sono applicate da `Program.cs`; HSTS e redirect HTTPS restano attivi solo fuori dall'ambiente di sviluppo.
 
-Il ritratto in `SitoMadda.UI\wwwroot\images` è stato ritagliato dalla schermata di riferimento. Le schermate originali restano nella cartella `Sito Madda` sul Desktop.
+I ritratti in `SitoMadda.UI\wwwroot\images` derivano dall'originale `fotoprofilomadda.jpeg` (844 × 1280): `maddalena-ritratto.jpg` è il ritaglio quadrato 720 × 720 usato nel cerchio della home, `maddalena-verticale.jpg` è il ritaglio verticale 3:4 (760 × 1013) usato nella pagina Chi sono. Entrambi sono ritagli nativi dall'HD, senza upscaling: se la foto cambia, vanno rigenerati con gli stessi nomi e proporzioni.
+
+## Stile e componenti
+
+`SitoMadda.UI\wwwroot\site.css` contiene i token del design system (palette, tipografia fluida, raggi, ombre, spaziature) e i componenti riutilizzabili: header con navigazione compatta, card dei temi, timeline, navigazione temi adesiva, FAQ a fisarmonica, modulo contatti e footer. `wwwroot\js\navigation.js` gestisce header allo scroll, voce attiva della navigazione temi, chiusura del menu mobile con Escape o clic esterno, e riallinea lo stato dopo le navigazioni Blazor. Tutti i contrasti del testo sono almeno 4.5:1 e le animazioni rispettano `prefers-reduced-motion`.
 
 ## Struttura del codice
 

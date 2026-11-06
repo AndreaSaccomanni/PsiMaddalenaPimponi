@@ -3,12 +3,22 @@
 
 <a class="skip-link" href="#contenuto">Vai al contenuto</a>
 
-<header class="site-header">
+<header class="site-header" id="site-header">
     <div class="header-inner">
         <a class="brand" href="/" aria-label="Maddalena Pimponi, pagina iniziale">
-            <span class="brand-signature">Maddalena Pimponi</span>
-            <span class="brand-subtitle">Psicologa · Orvieto · Narni · Online</span>
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 21V8.5" />
+                    <path d="M12 13.4c-3.4 0-5.6-1.8-6-4.5 3.3-.6 5.7 1 6 4.5Z" />
+                    <path d="M12 10.4c3.4 0 5.6-1.8 6-4.5-3.3-.6-5.7 1-6 4.5Z" />
+                </svg>
+            </span>
+            <span class="brand-text">
+                <span class="brand-signature">Maddalena Pimponi</span>
+                <span class="brand-subtitle">Psicologa · Orvieto · Narni · Online</span>
+            </span>
         </a>
+
         <nav class="desktop-nav" aria-label="Navigazione principale">
             <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
             <NavLink href="/chi-sono">Chi sono</NavLink>
@@ -16,15 +26,21 @@
             <NavLink href="/domande-frequenti">Domande frequenti</NavLink>
             <NavLink class="nav-contact" href="/contatti">Contatti</NavLink>
         </nav>
+
         <details class="mobile-nav">
-            <summary aria-label="Apri il menu">Menu</summary>
+            <summary aria-label="Apri il menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                    <path d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+                Menu
+            </summary>
             <nav aria-label="Navigazione principale">
                 <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
                 <NavLink href="/chi-sono">Chi sono</NavLink>
                 <NavLink href="/di-cosa-mi-occupo">Di cosa mi occupo</NavLink>
                 <NavLink href="/domande-frequenti">Domande frequenti</NavLink>
                 <NavLink href="/contatti">Contatti</NavLink>
-                <NavLink href="/privacy">Privacy Policy</NavLink>
+                <NavLink href="/privacy">Privacy policy</NavLink>
             </nav>
         </details>
     </div>
@@ -37,14 +53,23 @@
 <footer class="site-footer">
     <div class="footer-inner">
         <div class="footer-about">
-            <a class="brand brand-light" href="/">
-                <span class="brand-signature">Maddalena Pimponi</span>
-                <span class="footer-spiral" aria-hidden="true">〰</span>
-                <span class="brand-subtitle">Psicologa</span>
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 21V8.5" />
+                        <path d="M12 13.4c-3.4 0-5.6-1.8-6-4.5 3.3-.6 5.7 1 6 4.5Z" />
+                        <path d="M12 10.4c3.4 0 5.6-1.8 6-4.5-3.3-.6-5.7 1-6 4.5Z" />
+                    </svg>
+                </span>
+                <span class="brand-text">
+                    <span class="brand-signature">Maddalena Pimponi</span>
+                    <span class="brand-subtitle">Psicologa clinica dello sviluppo</span>
+                </span>
             </a>
-            <p>Psicologa clinica dello sviluppo · Albo degli Psicologi dell’Umbria n. 1913</p>
-            <p>Chiedere aiuto è una forma di cura verso se stessi.<br />Orvieto · Narni · Online</p>
+            <p>Iscritta all’Albo degli Psicologi dell’Umbria n. 1913. Ricevo su appuntamento a Orvieto, a Narni e online.</p>
+            <p>Chiedere aiuto è una forma di cura verso se stessi.</p>
         </div>
+
         <div>
             <h2>Pagine</h2>
             <a href="/">Home</a>
@@ -52,23 +77,60 @@
             <a href="/di-cosa-mi-occupo">Di cosa mi occupo</a>
             <a href="/domande-frequenti">Domande frequenti</a>
             <a href="/contatti">Contatti</a>
-            <a href="/privacy">Privacy Policy</a>
+            <a href="/privacy">Privacy policy</a>
         </div>
+
         <div>
             <h2>Contatti</h2>
-            <a href="@contenutiSito.CollegamentoTelefono">@contenutiSito.TelefonoVisualizzato</a>
-            <a href="@contenutiSito.CollegamentoWhatsApp" target="_blank" rel="noopener noreferrer">WhatsApp</a>
-            <a href="mailto:@contenutiSito.IndirizzoEmail">@contenutiSito.IndirizzoEmail</a>
-            <a href="@contenutiSito.CollegamentoInstagram" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href="@contenutiSito.CollegamentoTelefono">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                    <path d="M6.5 3.5h3l1.5 4-2 1.5a12 12 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.7a2 2 0 0 1 2-2.2Z" />
+                </svg>
+                @contenutiSito.TelefonoVisualizzato
+            </a>
+            <a href="@contenutiSito.CollegamentoWhatsApp" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.3A8.5 8.5 0 1 1 20.5 11.6Z" />
+                    <path d="M8.7 8.4c.3-.5.7-.5 1-.5h.6c.2 0 .4.1.5.4l.7 1.6c.1.3 0 .5-.2.7l-.5.6a6 6 0 0 0 3.1 3.1l.6-.5c.2-.2.4-.3.7-.2l1.6.7c.3.1.4.3.4.5v.6c0 .4-.1.8-.6 1a2 2 0 0 1-1.5.4 9 9 0 0 1-7.3-7.3 2 2 0 0 1 .4-1.6Z" />
+                </svg>
+                WhatsApp
+            </a>
+            <a href="mailto:@contenutiSito.IndirizzoEmail">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
+                    <path d="m4 7 8 6 8-6" />
+                </svg>
+                @contenutiSito.IndirizzoEmail
+            </a>
+            <a href="@contenutiSito.CollegamentoInstagram" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                    <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <circle cx="17" cy="7" r="1" fill="currentColor" stroke="none" />
+                </svg>
+                Instagram
+            </a>
+            <a href="@contenutiSito.CollegamentoMioDottore" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 3 5 6v6c0 4.2 2.9 7.9 7 9 4.1-1.1 7-4.8 7-9V6l-7-3Z" />
+                    <path d="m9 12 2 2 4-4" />
+                </svg>
+                MioDottore
+            </a>
         </div>
     </div>
+
     <div class="footer-bottom">
         <span>© @DateTime.Now.Year Dott.ssa Maddalena Pimponi · Psicologa</span>
         <span>Orvieto · Narni · Online</span>
     </div>
 </footer>
 
-<a class="whatsapp-float" href="@contenutiSito.CollegamentoWhatsApp" target="_blank" rel="noopener noreferrer">Scrivimi su WhatsApp</a>
+<a class="whatsapp-float" href="@contenutiSito.CollegamentoWhatsApp" target="_blank" rel="noopener noreferrer" aria-label="Scrivimi su WhatsApp">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3.5 20.5l1.4-4.3A8.5 8.5 0 1 1 20.5 11.6Z" />
+    </svg>
+</a>
 
 <div id="blazor-error-ui" role="alert">
     Si è verificato un errore.

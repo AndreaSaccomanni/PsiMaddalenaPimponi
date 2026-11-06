@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Options;
 using SitoMadda.Application.Models;
@@ -13,9 +13,25 @@ public sealed class SmtpEmailSender(
 {
     private readonly EmailSettings _impostazioniEmail = opzioniEmail.Value;
 
-    /// <summary>Prepara e invia un'email di testo con i recapiti della persona che ha compilato il modulo.</summary>
+    /// <summary>
+    /// Invia alla titolare un'email di testo con i dati inseriti nel modulo di contatto.
+    /// </summary>
+    /// <remarks>
+    /// Il flusso è: verifica che la configurazione SMTP sia completa, ripulisce i valori che
+    /// finiscono nelle intestazioni (oggetto e Reply-To), compone il messaggio in testo semplice
+    /// e lo consegna al server configurato. Il mittente resta l'account SMTP, mentre la persona
+    /// che ha scritto viene impostata come Reply-To così la risposta arriva a lei.
+    /// </remarks>
+    /// <param name="richiesta">Dati già validati dal modulo di contatto.</param>
+    /// <param name="tokenAnnullamento">Token per interrompere l'invio se la richiesta viene annullata.</param>
+    /// <exception cref="InvalidOperationException">
+    /// La configurazione SMTP è incompleta: il chiamante deve mostrare un messaggio generico e
+    /// registrare il dettaglio nei log, senza esporlo al visitatore.
+    /// </exception>
     public async Task InviaRichiestaContattoAsync(ContactRequest richiesta, CancellationToken tokenAnnullamento = default)
     {
+        // Blocco preventivo: senza host, porta valida, mittente, password e destinatario non ha
+        // senso tentare la connessione, e l'errore deve essere riconoscibile dal chiamante.
         if (string.IsNullOrWhiteSpace(_impostazioniEmail.SmtpHost) ||
             _impostazioniEmail.SmtpPort is < 1 or > 65535 ||
             string.IsNullOrWhiteSpace(_impostazioniEmail.SenderAddress) ||
@@ -26,6 +42,8 @@ public sealed class SmtpEmailSender(
                 "L'invio email non è ancora configurato. Imposta i dati SMTP locali seguendo le istruzioni nel README.");
         }
 
+        // L'oggetto può contenere testo libero: va ripulito da ritorni a capo e caratteri di
+        // controllo, altrimenti MailMessage rifiuta il messaggio con ArgumentException.
         var oggettoEmail = PulisciValoreIntestazione(
             string.IsNullOrWhiteSpace(richiesta.Argomento) ? "primo colloquio" : richiesta.Argomento);
 
@@ -54,6 +72,7 @@ public sealed class SmtpEmailSender(
         messaggioEmail.To.Add(new MailAddress(_impostazioniEmail.RecipientAddress));
         messaggioEmail.ReplyToList.Add(CreaIndirizzoRisposta(richiesta));
 
+        // Il client è creato per singolo invio: SmtpClient non è thread-safe e va rilasciato.
         using var clientSmtp = new SmtpClient(_impostazioniEmail.SmtpHost, _impostazioniEmail.SmtpPort)
         {
             EnableSsl = _impostazioniEmail.UseSsl,
@@ -63,7 +82,11 @@ public sealed class SmtpEmailSender(
         await clientSmtp.SendMailAsync(messaggioEmail, tokenAnnullamento);
     }
 
-    /// <summary>Rimuove i caratteri di controllo e compatta gli spazi in un valore usato nelle intestazioni.</summary>
+    /// <summary>
+    /// Normalizza un valore destinato a un'intestazione email: sostituisce i caratteri di
+    /// controllo con spazi, compatta le sequenze di spazi e limita la lunghezza a 100 caratteri.
+    /// Serve a impedire iniezioni di intestazioni e valori malformati.
+    /// </summary>
     private static string PulisciValoreIntestazione(string valore)
     {
         var caratteri = valore.Select(carattere => char.IsControl(carattere) ? ' ' : carattere).ToArray();
@@ -77,7 +100,12 @@ public sealed class SmtpEmailSender(
         return pulito.Length > 100 ? pulito[..100] : pulito;
     }
 
-    /// <summary>Costruisce l'indirizzo a cui rispondere, senza virgolette o caratteri di controllo nel nome.</summary>
+    /// <summary>
+    /// Costruisce l'indirizzo Reply-To usando l'email del visitatore e il suo nome come nome
+    /// visualizzato. Il nome viene privato di virgolette, barre rovesciate e caratteri di
+    /// controllo: MailAddress non fa escaping del display name e un valore grezzo produrrebbe
+    /// un'intestazione non valida.
+    /// </summary>
     private static MailAddress CreaIndirizzoRisposta(ContactRequest richiesta)
     {
         var indirizzo = richiesta.Email.Trim();
