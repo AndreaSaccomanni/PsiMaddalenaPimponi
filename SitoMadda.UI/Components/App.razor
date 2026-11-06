@@ -11,6 +11,7 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="stylesheet" href="site.css" />
     <HeadOutlet />
+    <script type="application/ld+json">@((MarkupString)DatiStrutturati)</script>
 </head>
 
 <body>
@@ -20,3 +21,17 @@
 </body>
 
 </html>
+
+@code {
+    [Inject]
+    private NavigationManager Navigazione { get; set; } = default!;
+
+    [Inject]
+    private SiteContent Contenuti { get; set; } = default!;
+
+    /// <summary>
+    /// Dati schema.org del sito, calcolati sull'indirizzo da cui arriva la richiesta: quando
+    /// il dominio sarà attivo i riferimenti si aggiornano da soli, senza modifiche al codice.
+    /// </summary>
+    private string DatiStrutturati => StructuredData.PerSito(Navigazione.BaseUri, Contenuti);
+}

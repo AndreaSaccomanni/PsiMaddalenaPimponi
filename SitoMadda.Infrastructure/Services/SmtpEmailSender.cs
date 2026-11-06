@@ -73,10 +73,12 @@ public sealed class SmtpEmailSender(
         messaggioEmail.ReplyToList.Add(CreaIndirizzoRisposta(richiesta));
 
         // Il client è creato per singolo invio: SmtpClient non è thread-safe e va rilasciato.
+        // Il timeout evita che un server SMTP che non risponde tenga occupato il circuito.
         using var clientSmtp = new SmtpClient(_impostazioniEmail.SmtpHost, _impostazioniEmail.SmtpPort)
         {
             EnableSsl = _impostazioniEmail.UseSsl,
-            Credentials = new NetworkCredential(_impostazioniEmail.SenderAddress, _impostazioniEmail.SenderPassword)
+            Credentials = new NetworkCredential(_impostazioniEmail.SenderAddress, _impostazioniEmail.SenderPassword),
+            Timeout = 15000
         };
 
         await clientSmtp.SendMailAsync(messaggioEmail, tokenAnnullamento);

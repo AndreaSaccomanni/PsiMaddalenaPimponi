@@ -3,7 +3,34 @@
    Palette calda e desaturata, tipografia editoriale, spaziature fluide.
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+/* Font self-hosted (licenza SIL OFL in fonts/OFL.txt): nessuna richiesta ai server di Google,
+   così il sito non trasmette l'indirizzo IP del visitatore a terzi prima di qualsiasi consenso. */
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url("fonts/dmsans.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: "Playfair Display";
+    font-style: normal;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url("fonts/playfair.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: "Playfair Display";
+    font-style: italic;
+    font-weight: 400 900;
+    font-display: swap;
+    src: url("fonts/playfair-italic.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 :root {
     /* Colori */
@@ -1122,6 +1149,53 @@ blockquote cite {
     display: block;
     border: 0;
     filter: saturate(.85) contrast(.98);
+}
+
+/* La mappa di Google viene incorporata solo dopo un clic esplicito: prima di allora il
+   browser non contatta i server di Google e l'indirizzo IP del visitatore resta al sito. */
+.map-placeholder {
+    width: 100%;
+    min-height: 230px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 0;
+    border-top: 1px dashed var(--line-strong);
+    background: var(--sand);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--text-sm);
+    text-align: center;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.map-placeholder:hover { background: var(--blush); }
+.map-placeholder:focus-visible { outline: 3px solid var(--rose-text); outline-offset: -3px; }
+.map-placeholder strong { display: block; font-size: var(--text-sm); }
+.map-placeholder span { max-width: 32em; color: var(--muted); font-size: var(--text-xs); line-height: 1.5; }
+
+.map-privacy-note {
+    margin: 16px 0 0;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    line-height: 1.6;
+}
+
+/* Campo esca per i bot: invisibile agli occhi e agli screen reader, non raggiungibile da tastiera. */
+.form-honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
 }
 
 /* ---------- Footer ---------- */

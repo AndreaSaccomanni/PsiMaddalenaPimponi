@@ -1,10 +1,15 @@
 ﻿@page "/contatti"
 @rendermode InteractiveServer
+@implements IDisposable
+@using System.Security.Cryptography
+@using System.Text
+@using Microsoft.AspNetCore.Http
 @inject SiteContent contenutiSito
 @inject IEmailSender servizioEmail
+@inject ContactFormLimiter limitatoreInvii
 @inject ILogger<Contatti> logger
 
-<PageTitle>Contatti e appuntamenti · Maddalena Pimponi</PageTitle>
+<PageMetadata Pagina="SitePages.Contatti" />
 
 <PageHero Titolo="Per informazioni e appuntamenti" Descrizione="Puoi chiamarmi, scrivermi su WhatsApp o per email, oppure lasciarmi un messaggio dal modulo. Ricevo su appuntamento a Orvieto, a Narni e online." />
 
@@ -16,20 +21,26 @@
 
             <EditForm Model="@richiesta" OnValidSubmit="InviaRichiestaAsync">
                 <DataAnnotationsValidator />
+                @* Campo esca: i visitatori non lo vedono e non possono raggiungerlo, i bot lo
+                   compilano. Se arriva valorizzato il messaggio viene scartato in silenzio. *@
+                <div class="form-honeypot" aria-hidden="true">
+                    <label for="contact-website">Non compilare questo campo</label>
+                    <input id="contact-website" type="text" tabindex="-1" autocomplete="off" @bind="esca" @bind:event="oninput" />
+                </div>
                 <div class="form-grid">
                     <div class="form-field">
                         <label for="contact-name">Nome e cognome</label>
-                        <InputText id="contact-name" @bind-Value="richiesta.Nome" autocomplete="name" />
+                        <InputText id="contact-name" @bind-Value="richiesta.Nome" autocomplete="name" maxlength="100" />
                         <ValidationMessage For="@(() => richiesta.Nome)" />
                     </div>
                     <div class="form-field">
                         <label for="contact-email">Email</label>
-                        <InputText id="contact-email" type="email" @bind-Value="richiesta.Email" autocomplete="email" />
+                        <InputText id="contact-email" type="email" @bind-Value="richiesta.Email" autocomplete="email" maxlength="254" />
                         <ValidationMessage For="@(() => richiesta.Email)" />
                     </div>
                     <div class="form-field full-field">
                         <label for="contact-phone">Telefono <span>(facoltativo)</span></label>
-                        <InputText id="contact-phone" type="tel" @bind-Value="richiesta.Telefono" autocomplete="tel" />
+                        <InputText id="contact-phone" type="tel" @bind-Value="richiesta.Telefono" autocomplete="tel" maxlength="30" />
                         <ValidationMessage For="@(() => richiesta.Telefono)" />
                     </div>
                     <div class="form-field full-field">
@@ -45,7 +56,7 @@
                     </div>
                     <div class="form-field full-field">
                         <label for="contact-message">Messaggio</label>
-                        <InputTextArea id="contact-message" @bind-Value="richiesta.Messaggio" rows="5" />
+                        <InputTextArea id="contact-message" @bind-Value="richiesta.Messaggio" rows="5" maxlength="4000" />
                         <ValidationMessage For="@(() => richiesta.Messaggio)" />
                         <small>Per tutelare la tua privacy, evita di inserire informazioni sanitarie o dettagli particolarmente sensibili.</small>
                     </div>
@@ -130,26 +141,88 @@
                         <p>@studio.Indirizzo<br />@studio.Citta</p>
                         <a class="button button-outline" href="@studio.UrlRicercaMappa" target="_blank" rel="noopener noreferrer">Apri in Google Maps <span>↗</span></a>
                     </div>
-                    <iframe title="Mappa dello studio di @studio.Nome"
-                            src="@studio.UrlMappaIncorporata"
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade"
-                            allowfullscreen></iframe>
+                    @if (mappeCaricate.Contains(studio.Nome))
+                    {
+                        <iframe title="Mappa dello studio di @studio.Nome"
+                                src="@studio.UrlMappaIncorporata"
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"
+                                allowfullscreen></iframe>
+                    }
+                    else
+                    {
+                        <button type="button" class="map-placeholder" @onclick="() => CaricaMappa(studio.Nome)">
+                            <strong>Mostra la mappa di @studio.Nome</strong>
+                            <span>L’immagine arriva da Google e si carica solo se premi qui: prima nessun dato viene inviato a Google.</span>
+                        </button>
+                    }
                 </article>
             }
         </div>
+        <p class="map-privacy-note">Le mappe incorporate di Google restano spente finché non le attivi: è una scelta di privacy, puoi sempre aprire lo studio in Google Maps con il pulsante accanto.</p>
     </div>
 </section>
 
 @code {
+    private const string ChiaveStatoPersistito = "contatti.chiaveVisitatore";
+    private readonly HashSet<string> mappeCaricate = new(StringComparer.Ordinal);
     private ContactRequest richiesta = new();
     private bool invioInCorso;
     private bool invioRiuscito;
     private string? messaggioStato;
+    private string esca = string.Empty;
+    private PersistingComponentStateSubscription sottoscrizionePersistenza;
 
     /// <summary>
-    /// Gestisce l'invio del modulo: controlla il consenso, chiama il servizio email e
-    /// comunica l'esito in pagina.
+    /// Chiave del limite di invio: un pseudonimo stabile ricavato dall'indirizzo del visitatore.
+    /// Il prerender la calcola dalla richiesta HTTP e la consegna al circuito interattivo;
+    /// senza indirizzo resta un identificativo del singolo circuito.
+    /// </summary>
+    private string chiaveVisitatore = $"circuito-{Guid.NewGuid():N}";
+
+    /// <summary>Richiesta HTTP disponibile solo durante il prerender della pagina.</summary>
+    [CascadingParameter]
+    private HttpContext? ContestoHttp { get; set; }
+
+    /// <summary>Stato che sopravvive al passaggio dal prerender al circuito interattivo.</summary>
+    [Inject]
+    private PersistentComponentState StatoPersistente { get; set; } = default!;
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        sottoscrizionePersistenza = StatoPersistente.RegisterOnPersisting(PersistechiaveVisitatore, RenderMode.InteractiveServer);
+
+        if (StatoPersistente.TryTakeFromJson<string>(ChiaveStatoPersistito, out var chiaveSalvata) &&
+            !string.IsNullOrWhiteSpace(chiaveSalvata))
+        {
+            chiaveVisitatore = chiaveSalvata;
+            return;
+        }
+
+        if (ContestoHttp?.Connection.RemoteIpAddress is { } indirizzo)
+        {
+            var testo = indirizzo.IsIPv4MappedToIPv6 ? indirizzo.MapToIPv4().ToString() : indirizzo.ToString();
+            chiaveVisitatore = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(testo)));
+        }
+    }
+
+    /// <summary>Consegna la chiave al circuito interattivo senza esporre l'indirizzo IP in chiaro.</summary>
+    private Task PersistechiaveVisitatore()
+    {
+        StatoPersistente.PersistAsJson(ChiaveStatoPersistito, chiaveVisitatore);
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public void Dispose() => sottoscrizionePersistenza.Dispose();
+
+    /// <summary>Carica la mappa di Google dello studio scelto, una sola volta per pagina.</summary>
+    private void CaricaMappa(string nomeStudio) => mappeCaricate.Add(nomeStudio);
+
+    /// <summary>
+    /// Gestisce l'invio del modulo: scarta i bot, controlla il consenso e il limite di invii,
+    /// chiama il servizio email e comunica l'esito in pagina.
     /// </summary>
     /// <remarks>
     /// Il consenso privacy non è una validazione del modello ma una condizione esplicita:
@@ -163,10 +236,32 @@
         messaggioStato = null;
         invioRiuscito = false;
 
+        // Campo esca compilato: è un bot. Si risponde come per un invio riuscito, così non
+        // impara quale controllo lo ha fermato, e non si consuma invio email.
+        if (!string.IsNullOrWhiteSpace(esca))
+        {
+            logger.LogWarning("Modulo contatti: invio scartato perché il campo esca è compilato.");
+            richiesta = new ContactRequest();
+            esca = string.Empty;
+            invioRiuscito = true;
+            messaggioStato = "Messaggio inviato correttamente. Grazie per avermi scritto.";
+            return;
+        }
+
         // La casella non ha attributi di validazione: il controllo va fatto qui, lato server.
         if (!richiesta.PrivacyAccettata)
         {
             messaggioStato = "Per inviare il messaggio, conferma di aver letto l’informativa privacy.";
+            return;
+        }
+
+        // Limite di invii: protegge la casella da raffiche automatiche e da invii ripetuti.
+        if (!limitatoreInvii.Consenti(chiaveVisitatore, DateTimeOffset.UtcNow, out var attesa))
+        {
+            var minuti = Math.Max(1, (int)Math.Ceiling(attesa.TotalMinutes));
+            var parola = minuti == 1 ? "minuto" : "minuti";
+            logger.LogWarning("Modulo contatti: invio bloccato dal limite, attesa {Attesa}.", attesa);
+            messaggioStato = $"Hai inviato più messaggi in poco tempo. Riprova tra {minuti} {parola} oppure scrivimi direttamente a {contenutiSito.IndirizzoEmail}.";
             return;
         }
 
