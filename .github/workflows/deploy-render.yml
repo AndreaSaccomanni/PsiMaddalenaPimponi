@@ -1,9 +1,9 @@
 name: Deploy su Render
 
-# Ogni push sul ramo main pubblica il sito su Render: il workflow chiede il deploy del commit
-# appena pushato e ne segue lo stato, così l'esito è visibile anche nella scheda Actions.
-# Il servizio nasce da un repository pubblico: Render non riceve il webhook di GitHub, quindi
-# l'avvio del deploy passa da qui.
+# Ogni push sul ramo main pubblica il sito su Render. Il servizio nasce da un repository
+# pubblico, quindi Render non riceve il webhook di GitHub: l'avvio del deploy passa da qui.
+# Il workflow chiede un deploy del commit appena pushato e ne segue lo stato, così l'esito è
+# visibile anche nella scheda Actions.
 #
 # Richiede un secret di repository: RENDER_API_KEY (Render → Account Settings → API Keys).
 
@@ -24,13 +24,14 @@ jobs:
   deploy:
     name: Deploy produzione
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Avvia il deploy del commit
         id: avvio
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
 
@@ -39,19 +40,39 @@ jobs:
             exit 1
           fi
 
-          risposta=$(curl -sS -X POST "$RENDER_API/services/$RENDER_SERVICE_ID/deploys" \
+          # L'API risponde 202 senza corpo: l'id del deploy va cercato nell'elenco.
+          codice=$(curl -sS -o /tmp/render-post.json -w "%{http_code}" \
+            -X POST "$RENDER_API/services/$RENDER_SERVICE_ID/deploys" \
             -H "Authorization: Bearer $RENDER_API_KEY" \
             -H "Content-Type: application/json" \
-            -d "{\"commitId\": \"${{ github.sha }}\", \"clearCache\": \"do_not_clear\"}")
+            -d "{\"commitId\": \"$COMMIT\", \"clearCache\": \"do_not_clear\"}")
 
-          deploy_id=$(echo "$risposta" | jq -r '.id // empty')
-          if [ -z "$deploy_id" ]; then
-            echo "::error::Render non ha restituito un id di deploy: $risposta"
+          echo "Render ha risposto con stato HTTP $codice."
+          if [ "$codice" -ge 400 ]; then
+            cat /tmp/render-post.json || true
+            echo "::error::Render non ha accettato la richiesta di deploy."
+            exit 1
+          fi
+
+          for tentativo in $(seq 1 12); do
+            deploy_id=$(curl -sS "$RENDER_API/services/$RENDER_SERVICE_ID/deploys?limit=10" \
+              -H "Authorization: Bearer $RENDER_API_KEY" \
+              | jq -r --arg c "$COMMIT" '[.[] | .deploy | select(.commit.id == $c)][0].id // empty')
+
+            if [ -n "$deploy_id" ]; then
+              echo "Deploy trovato: $deploy_id"
+              break
+            fi
+
+            sleep 5
+          done
+
+          if [ -z "${deploy_id:-}" ]; then
+            echo "::error::Nessun deploy associato al commit $COMMIT."
             exit 1
           fi
 
           echo "deploy_id=$deploy_id" >> "$GITHUB_OUTPUT"
-          echo "Deploy avviato: $deploy_id"
 
       - name: Attendi l'esito del deploy
         env:
@@ -60,7 +81,7 @@ jobs:
         run: |
           set -uo pipefail
 
-          for tentativo in $(seq 1 120); do
+          for tentativo in $(seq 1 140); do
             stato=$(curl -sS "$RENDER_API/services/$RENDER_SERVICE_ID/deploys/$DEPLOY_ID" \
               -H "Authorization: Bearer $RENDER_API_KEY" | jq -r '.status // "unknown"')
 
@@ -71,7 +92,7 @@ jobs:
                 echo "Deploy completato: https://psicologamaddalenapimponi.it"
                 exit 0
                 ;;
-              build_failed|update_failed|canceled|pre_deploy_failed)
+              build_failed|update_failed|canceled|pre_deploy_failed|deactivated)
                 echo "::error::Deploy fallito ($stato)."
                 exit 1
                 ;;
