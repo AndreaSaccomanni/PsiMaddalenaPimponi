@@ -198,7 +198,8 @@ Il sito resta raggiungibile anche su `https://psicologamaddalenapimponi.onrender
 | Servizio Render | `psicologamaddalenapimponi` (`srv-dbou4gp5efls73f12100`), piano free, Francoforte |
 | Indirizzo provvisorio | `https://psicologamaddalenapimponi.onrender.com` |
 | Deploy automatico | workflow `.github/workflows/deploy-render.yml` a ogni push su `main` |
-| Dominio | `psicologamaddalenapimponi.it` e `www` aggiunti su Render, in attesa di DNS e registrazione |
+| Dominio | `psicologamaddalenapimponi.it` e `www` presenti su Render, in attesa di registrazione e DNS |
+| Sottodominio Render | attivo; si disattiva dopo la verifica del dominio |
 | Repository | pubblico: è la condizione che permette a Render di leggere il codice senza autorizzazioni aggiuntive |
 
 Record DNS da creare presso il registrar, quando il dominio sarà registrato:
@@ -214,12 +215,14 @@ Render emette il certificato HTTPS da solo appena la verifica va a buon fine. Il
 
 Dopo aver registrato `psicologamaddalenapimponi.it` presso un registrar italiano (Aruba, Register.it, OVH e simili; serve un codice fiscale o una partita IVA):
 
-1. Su Render: servizio → **Settings → Custom Domains** → *Add Custom Domain* → `psicologamaddalenapimponi.it`. Render mostra i record DNS da creare.
+1. I due domini sono già presenti su Render (creati con l'API): `psicologamaddalenapimponi.it` e `www`, che reindirizza all'apice. Sono in stato *unverified* finché il DNS non punta a Render.
 2. Nel pannello DNS del registrar:
-   - per il dominio senza `www`, un record **A** verso l'indirizzo indicato da Render (per l'apice non si può usare un CNAME);
-   - per `www`, un **CNAME** verso `psicologamaddalenapimponi.onrender.com`, oppure aggiungi `www.psicologamaddalenapimponi.it` su Render come dominio che reindirizza all'apice.
-3. Attendi la verifica (da pochi minuti a qualche ora): Render emette il certificato HTTPS da solo, senza costi.
-4. Per l'invio email, in Resend aggiungi lo stesso dominio e copia i record SPF/DKIM nel pannello DNS, poi imposta `RESEND_FROM` a `modulo@psicologamaddalenapimponi.it`.
+   - per il dominio senza `www`, un record **A** verso `216.24.57.1` (per l'apice non si può usare un CNAME);
+   - per `www`, un **CNAME** verso `psicologamaddalenapimponi.onrender.com`;
+   - rimuovi eventuali record **AAAA**: Render usa solo IPv4.
+3. Su Render: **Settings → Custom Domains → Verify**. Attendi la propagazione (da pochi minuti a qualche ora): Render emette il certificato HTTPS da solo, senza costi.
+4. Disattiva il sottodominio Render: **Settings → Custom Domains → Render Subdomain → Disabled**. Da quel momento `psicologamaddalenapimponi.onrender.com` risponde 404 e il sito è raggiungibile solo dal dominio. Va fatto **dopo** la verifica del dominio, altrimenti il sito resta irraggiungibile.
+5. Per l'invio email, in Resend aggiungi lo stesso dominio e copia i record SPF/DKIM nel pannello DNS, poi imposta `RESEND_FROM` a `modulo@psicologamaddalenapimponi.it`.
 
 Gli indirizzi di canonical, anteprime social e sitemap si adattano da soli all'indirizzo con cui arriva la richiesta: non c'è nessun valore da cambiare nel codice.
 
