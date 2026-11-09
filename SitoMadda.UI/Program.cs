@@ -41,6 +41,15 @@ creatoreApp.Services.Configure<ForwardedHeadersOptions>(opzioni =>
 {
     opzioni.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 
+    // Su Render il proxy non ha un indirizzo fisso: con ReverseProxy:TrustAll si accettano gli
+    // header X-Forwarded-* da qualunque origine. È sicuro solo perché l'applicazione è
+    // raggiungibile esclusivamente attraverso il proxy dell'hosting.
+    if (string.Equals(configurazione["ReverseProxy:TrustAll"], "true", StringComparison.OrdinalIgnoreCase))
+    {
+        opzioni.KnownNetworks.Clear();
+        opzioni.KnownProxies.Clear();
+    }
+
     if (IPAddress.TryParse(configurazione["ReverseProxy:KnownProxy"], out var indirizzoProxy))
     {
         opzioni.KnownProxies.Add(indirizzoProxy);
@@ -65,10 +74,16 @@ var applicazioneWeb = creatoreApp.Build();
 // Se il modulo non ha le credenziali SMTP il sito resta online, ma l'avviso finisce nei log
 // invece di scoprirlo dal primo visitatore che prova a scrivere.
 var impostazioniEmail = applicazioneWeb.Services.GetRequiredService<IOptions<EmailSettings>>().Value;
-if (string.IsNullOrWhiteSpace(impostazioniEmail.SenderAddress) || string.IsNullOrWhiteSpace(impostazioniEmail.SenderPassword))
+var impostazioniResend = applicazioneWeb.Services.GetRequiredService<IOptions<ResendSettings>>().Value;
+var smtpPronto = !string.IsNullOrWhiteSpace(impostazioniEmail.SenderAddress) &&
+                 !string.IsNullOrWhiteSpace(impostazioniEmail.SenderPassword);
+var resendPronto = !string.IsNullOrWhiteSpace(impostazioniResend.ApiKey) &&
+                   !string.IsNullOrWhiteSpace(impostazioniResend.Destinatario);
+
+if (!smtpPronto && !resendPronto)
 {
     applicazioneWeb.Logger.LogWarning(
-        "Configurazione SMTP incompleta: imposta Email__SenderAddress ed Email__SenderPassword. Fino ad allora il modulo contatti mostrerà l'indirizzo email diretto.");
+        "Invio email non configurato: imposta RESEND_API_KEY (produzione) oppure Email__SenderAddress ed Email__SenderPassword (sviluppo). Fino ad allora il modulo contatti mostrerà l'indirizzo email diretto.");
 }
 
 // Rende effettivi gli header del proxy prima di qualunque altro middleware che li usa.

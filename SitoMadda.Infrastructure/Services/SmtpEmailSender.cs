@@ -6,7 +6,11 @@ using SitoMadda.Application.Services;
 
 namespace SitoMadda.Infrastructure.Services;
 
-/// <summary>Invia le richieste di contatto usando il server SMTP configurato.</summary>
+/// <summary>
+/// Invia le richieste di contatto usando il server SMTP configurato. È il canale usato in
+/// sviluppo e su host che consentono le connessioni SMTP; in produzione su Render free il
+/// traffico SMTP è bloccato e interviene <see cref="ResendEmailSender"/>.
+/// </summary>
 public sealed class SmtpEmailSender(
     IOptions<EmailSettings> opzioniEmail,
     SiteContent contenutiSito) : IEmailSender
@@ -42,35 +46,15 @@ public sealed class SmtpEmailSender(
                 "L'invio email non è ancora configurato. Imposta i dati SMTP locali seguendo le istruzioni nel README.");
         }
 
-        // L'oggetto può contenere testo libero: va ripulito da ritorni a capo e caratteri di
-        // controllo, altrimenti MailMessage rifiuta il messaggio con ArgumentException.
-        var oggettoEmail = PulisciValoreIntestazione(
-            string.IsNullOrWhiteSpace(richiesta.Argomento) ? "primo colloquio" : richiesta.Argomento);
-
-        if (oggettoEmail.Length == 0)
-        {
-            oggettoEmail = "primo colloquio";
-        }
-
         using var messaggioEmail = new MailMessage
         {
             From = new MailAddress(_impostazioniEmail.SenderAddress, contenutiSito.NomeCompleto),
-            Subject = $"Richiesta dal sito: {oggettoEmail}",
-            Body = $"""
-                Nuovo messaggio dal sito di {contenutiSito.NomeCompleto}
-
-                Nome: {richiesta.Nome.Trim()}
-                Email: {richiesta.Email.Trim()}
-                Telefono: {richiesta.Telefono?.Trim() ?? "Non indicato"}
-                Argomento: {richiesta.Argomento?.Trim() ?? "Non indicato"}
-
-                Messaggio:
-                {richiesta.Messaggio.Trim()}
-                """,
+            Subject = MessaggioContatto.Oggetto(richiesta),
+            Body = MessaggioContatto.Corpo(richiesta, contenutiSito),
             IsBodyHtml = false
         };
         messaggioEmail.To.Add(new MailAddress(_impostazioniEmail.RecipientAddress));
-        messaggioEmail.ReplyToList.Add(CreaIndirizzoRisposta(richiesta));
+        messaggioEmail.ReplyToList.Add(MessaggioContatto.RispostaA(richiesta));
 
         // Il client è creato per singolo invio: SmtpClient non è thread-safe e va rilasciato.
         // Il timeout evita che un server SMTP che non risponde tenga occupato il circuito.
@@ -82,51 +66,5 @@ public sealed class SmtpEmailSender(
         };
 
         await clientSmtp.SendMailAsync(messaggioEmail, tokenAnnullamento);
-    }
-
-    /// <summary>
-    /// Normalizza un valore destinato a un'intestazione email: sostituisce i caratteri di
-    /// controllo con spazi, compatta le sequenze di spazi e limita la lunghezza a 100 caratteri.
-    /// Serve a impedire iniezioni di intestazioni e valori malformati.
-    /// </summary>
-    private static string PulisciValoreIntestazione(string valore)
-    {
-        var caratteri = valore.Select(carattere => char.IsControl(carattere) ? ' ' : carattere).ToArray();
-        var pulito = new string(caratteri).Trim();
-
-        while (pulito.Contains("  ", StringComparison.Ordinal))
-        {
-            pulito = pulito.Replace("  ", " ", StringComparison.Ordinal);
-        }
-
-        return pulito.Length > 100 ? pulito[..100] : pulito;
-    }
-
-    /// <summary>
-    /// Costruisce l'indirizzo Reply-To usando l'email del visitatore e il suo nome come nome
-    /// visualizzato. Il nome viene privato di virgolette, barre rovesciate e caratteri di
-    /// controllo: MailAddress non fa escaping del display name e un valore grezzo produrrebbe
-    /// un'intestazione non valida.
-    /// </summary>
-    private static MailAddress CreaIndirizzoRisposta(ContactRequest richiesta)
-    {
-        var indirizzo = richiesta.Email.Trim();
-        var nomeVisualizzato = new string(richiesta.Nome
-            .Select(carattere => char.IsControl(carattere) || carattere == '"' || carattere == '\\' ? ' ' : carattere)
-            .ToArray()).Trim();
-
-        while (nomeVisualizzato.Contains("  ", StringComparison.Ordinal))
-        {
-            nomeVisualizzato = nomeVisualizzato.Replace("  ", " ", StringComparison.Ordinal);
-        }
-
-        if (nomeVisualizzato.Length > 100)
-        {
-            nomeVisualizzato = nomeVisualizzato[..100].TrimEnd();
-        }
-
-        return nomeVisualizzato.Length == 0
-            ? new MailAddress(indirizzo)
-            : new MailAddress(indirizzo, nomeVisualizzato);
     }
 }

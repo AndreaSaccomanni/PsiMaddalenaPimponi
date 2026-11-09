@@ -64,7 +64,16 @@ Titolo, descrizione e percorso di ogni pagina pubblica sono definiti in un unico
 
 ### Email: come funziona l'invio
 
-Il modulo consegna il messaggio a un server SMTP (Gmail per impostazione predefinita). L'email arriva a `psi.maddalenapimponi@gmail.com`, con l'indirizzo di chi ha scritto impostato come **Rispondi a**: premendo "Rispondi" nella casella si risponde direttamente al visitatore.
+Il modulo consegna il messaggio a un servizio di posta. L'email arriva a `psi.maddalenapimponi@gmail.com`, con l'indirizzo di chi ha scritto impostato come **Rispondi a**: premendo "Rispondi" nella casella si risponde direttamente al visitatore.
+
+Ci sono due canali, scelti automaticamente all'avvio:
+
+| Canale | Quando si usa | Come si configura |
+|---|---|---|
+| **Resend** (API HTTPS) | In produzione, perché il piano free di Render blocca le connessioni SMTP in uscita | `RESEND_API_KEY` (e `RESEND_FROM`) |
+| **SMTP Gmail** | In sviluppo, sul computer | User Secrets `Email:SenderAddress` e `Email:SenderPassword` |
+
+Basta che sia presente una chiave Resend perché il sito usi quel canale; senza chiave resta SMTP. Il messaggio inviato è identico, quindi non cambia nulla per chi lo riceve.
 
 Per attivare l'invio in locale:
 
@@ -78,7 +87,13 @@ dotnet user-secrets set "Email:SenderPassword" "PASSWORD-PER-LE-APP" --project "
 
 3. Riavvia l'applicazione e prova il modulo.
 
-In produzione **non** si usano gli User Secrets: le stesse due chiavi arrivano come variabili d'ambiente (vedi [Pubblicare online](#pubblicare-online)). Gmail gratuito ha un limite di invii giornalieri; se il sito cresce conviene passare a un servizio di email transazionali (SendGrid, Brevo o simili).
+Per la produzione con Resend:
+
+1. Crea un account su [resend.com](https://resend.com) (piano free: 100 email al giorno) e genera una chiave API.
+2. Senza un dominio verificato, Resend accetta solo l'indirizzo dell'account come destinatario: va bene per provare, non per il sito pubblico.
+3. Dopo aver registrato `psicologamaddalenapimponi.it`, aggiungi il dominio in Resend e copia i record DNS che mostra (SPF e DKIM) nel pannello del registrar. Quando risulta verificato, imposta `RESEND_FROM` a un indirizzo del dominio, per esempio `modulo@psicologamaddalenapimponi.it`.
+
+Gmail gratuito ha un limite di invii giornalieri e non può essere usato su Render free perché la porta SMTP è chiusa: in produzione il canale di riferimento è Resend.
 
 ### Mappe e servizi esterni (privacy)
 
@@ -163,6 +178,34 @@ Il conteggio vive in memoria: si azzera al riavvio. È sufficiente a fermare gli
 
 ## Pubblicare online
 
+Il sito è predisposto per **Render** con piano **free**: costo zero per hosting, certificato TLS e dominio personalizzato. Si paga solo la registrazione del dominio (circa 10-15 € all'anno). Il servizio si sospende dopo 15 minuti senza visite e la prima richiesta successiva lo risveglia in circa un minuto: per un sito vetrina è accettabile.
+
+### Come funziona il deploy automatico
+
+Il repository contiene già `Dockerfile` e `render.yaml`. Su Render:
+
+1. **New → Blueprint** (oppure **New → Web Service**) e seleziona il repository `PsiMaddalenaPimponi`, ramo `main`. Se il repository è privato, Render deve avere accesso tramite la sua app GitHub: nella pagina di autorizzazione spunta il repository.
+2. Render legge `render.yaml` e crea il servizio `psicologamaddalenapimponi` con piano free, regione Francoforte, controllo di salute su `/health`.
+3. Aggiungi `RESEND_API_KEY` fra le variabili d'ambiente (è segreta, non sta nel repository).
+4. Da quel momento **ogni push su `main` ricostruisce e pubblica il sito** (`autoDeploy: true`). Il deploy si può seguire dalla scheda *Events* del servizio.
+
+Il sito resta raggiungibile anche su `https://psicologamaddalenapimponi.onrender.com` prima che il dominio sia pronto.
+
+### Collegare il dominio
+
+Dopo aver registrato `psicologamaddalenapimponi.it` presso un registrar italiano (Aruba, Register.it, OVH e simili; serve un codice fiscale o una partita IVA):
+
+1. Su Render: servizio → **Settings → Custom Domains** → *Add Custom Domain* → `psicologamaddalenapimponi.it`. Render mostra i record DNS da creare.
+2. Nel pannello DNS del registrar:
+   - per il dominio senza `www`, un record **A** verso l'indirizzo indicato da Render (per l'apice non si può usare un CNAME);
+   - per `www`, un **CNAME** verso `psicologamaddalenapimponi.onrender.com`, oppure aggiungi `www.psicologamaddalenapimponi.it` su Render come dominio che reindirizza all'apice.
+3. Attendi la verifica (da pochi minuti a qualche ora): Render emette il certificato HTTPS da solo, senza costi.
+4. Per l'invio email, in Resend aggiungi lo stesso dominio e copia i record SPF/DKIM nel pannello DNS, poi imposta `RESEND_FROM` a `modulo@psicologamaddalenapimponi.it`.
+
+Gli indirizzi di canonical, anteprime social e sitemap si adattano da soli all'indirizzo con cui arriva la richiesta: non c'è nessun valore da cambiare nel codice.
+
+### Alternativa: pubblicazione classica
+
 ```powershell
 dotnet publish .\SitoMadda.UI -c Release -o C:\publish\sito-madda
 ```
@@ -174,11 +217,13 @@ Su **IIS**: application pool con *No Managed Code*, hosting bundle ASP.NET Core 
 | Variabile | Quando serve | Valore |
 |---|---|---|
 | `ASPNETCORE_ENVIRONMENT` | sempre | `Production` (attiva HSTS, redirect HTTPS e pagina di errore) |
-| `Email__SenderAddress` | per inviare dal modulo | account Gmail che spedisce |
-| `Email__SenderPassword` | per inviare dal modulo | password per le app |
-| `AllowedHosts` | con il dominio | dominio reale; più domini separati da `;` |
-| `DataProtection__KeysPath` | hosting effimero o più istanze | cartella persistente e scrivibile, es. `D:\home\data-protection` |
-| `ReverseProxy__KnownProxy` | dietro IIS/nginx/Cloudflare | IP del proxy |
+| `RESEND_API_KEY` | per inviare dal modulo in produzione | chiave dell'account Resend |
+| `RESEND_FROM` | con dominio verificato su Resend | `modulo@psicologamaddalenapimponi.it` |
+| `Email__SenderAddress` | solo per l'invio SMTP in locale | account Gmail che spedisce |
+| `Email__SenderPassword` | solo per l'invio SMTP in locale | password per le app |
+| `ReverseProxy__TrustAll` | su Render | `true`: il proxy non ha un indirizzo fisso |
+| `AllowedHosts` | quando il dominio è attivo | dominio reale; più domini separati da `;` |
+| `DataProtection__KeysPath` | hosting con disco persistente o più istanze | cartella scrivibile, es. `D:\home\data-protection` |
 | `Site__PublicBaseUrl` | facoltativa | es. `https://www.example.it`; se assente si usa l'indirizzo della richiesta |
 
 I due punti di attenzione sono i segreti (mai in `appsettings.json`) e `ASPNETCORE_ENVIRONMENT`: senza `Production` il sito non applica HSTS e redirect HTTPS.
@@ -187,8 +232,9 @@ I due punti di attenzione sono i segreti (mai in `appsettings.json`) e `ASPNETCO
 
 - Testo definitivo dell'informativa privacy: `Privacy.razor` contiene ancora la bozza da validare con la titolare.
 - Valutazione delle voci del modulo che rivelano dati sanitari ("Ansia e stress", "Alimentazione e rapporto con il corpo"): richiedono consenso esplicito oppure vanno rimosse.
-- Credenziali SMTP reali; se si superano i limiti giornalieri di Gmail, passaggio a un provider transazionale.
-- Raccolta dei log da parte dell'hosting: il progetto scrive su console e non su file.
+- Registrazione del dominio e verifica del dominio su Resend per l'invio email.
+- Raccolta dei log: su Render sono consultabili dalla dashboard del servizio; il progetto scrive su console e non su file.
+- Chiavi Data Protection: sul piano free il disco è effimero, quindi a ogni deploy cambiano; chi ha il modulo aperto deve ricaricare la pagina.
 
 ---
 
@@ -205,6 +251,8 @@ I due punti di attenzione sono i segreti (mai in `appsettings.json`) e `ASPNETCO
 | Icona del sito | `wwwroot/favicon.ico`, `favicon.png`, `favicon.svg`, `apple-touch-icon.png` |
 | Testo dell'email ricevuta | `SitoMadda.Infrastructure/Services/SmtpEmailSender.cs` |
 | Regole di sicurezza e avvio | `SitoMadda.UI/Program.cs` |
+| Immagine e configurazione di Render | `Dockerfile`, `render.yaml` |
+| Canale di invio email | `SitoMadda.Infrastructure/DependencyInjection.cs` |
 
 Per aggiungere una pagina nuova servono tre passi: creare il file `.razor` in `Components/Pages`, aggiungerlo a `SitePages.cs` (così entra in sitemap e metadati) e inserire il collegamento nel menu in `MainLayout.razor`.
 
@@ -219,6 +267,7 @@ I due ritratti derivano dall'originale `fotoprofilomadda.jpeg`: `maddalena-ritra
 | 2026-11-04 | Modulo contatti con invio email, gestione errori, pagina 404 e intestazioni di sicurezza |
 | 2026-11-05 | Restyling completo, foto in alta definizione, favicon, animazioni allo scroll, collegamento MioDottore |
 | 2026-11-06 | Pronto per la produzione: font locali, mappe su richiesta, limite invii e campo esca, CSP applicata, metadati SEO, sitemap e robots, dati strutturati, health check, chiavi Data Protection, lettura header del proxy |
+| 2026-11-09 | Pubblicazione su Render con piano free e deploy automatico dal ramo `main`; invio email tramite Resend perché il piano free blocca SMTP |
 
 ---
 

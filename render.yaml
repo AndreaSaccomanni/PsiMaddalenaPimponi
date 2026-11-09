@@ -1,0 +1,32 @@
+# Blueprint Render per il sito pubblicato.
+#
+# Serve a ricreare il servizio da zero: su Render → New → Blueprint, seleziona questo repository.
+# Il piano è free: l'istanza si sospende dopo 15 minuti di inattività e la prima richiesta
+# successiva la risveglia in circa un minuto. Il dominio personalizzato e il certificato TLS
+# sono inclusi anche nel piano free.
+services:
+  - type: web
+    name: psicologamaddalenapimponi
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: frankfurt
+    branch: main
+    # Ogni push sul ramo main ricostruisce e pubblica il sito.
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:8080
+      # Il proxy di Render non ha un indirizzo fisso: gli header X-Forwarded-* vanno accettati
+      # da qualunque origine, altrimenti il redirect HTTPS entra in ciclo.
+      - key: ReverseProxy__TrustAll
+        value: "true"
+      # Chiave dell'account Resend: si inserisce nella dashboard, non nel repository.
+      - key: RESEND_API_KEY
+        sync: false
+      # Con il dominio verificato su Resend diventa modulo@psicologamaddalenapimponi.it.
+      - key: RESEND_FROM
+        value: onboarding@resend.dev
