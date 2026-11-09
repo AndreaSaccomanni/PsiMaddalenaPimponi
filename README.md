@@ -191,6 +191,25 @@ Il repository contiene già `Dockerfile` e `render.yaml`. Su Render:
 
 Il sito resta raggiungibile anche su `https://psicologamaddalenapimponi.onrender.com` prima che il dominio sia pronto.
 
+### Stato attuale della pubblicazione
+
+| Voce | Valore |
+|---|---|
+| Servizio Render | `psicologamaddalenapimponi` (`srv-dbou4gp5efls73f12100`), piano free, Francoforte |
+| Indirizzo provvisorio | `https://psicologamaddalenapimponi.onrender.com` |
+| Deploy automatico | workflow `.github/workflows/deploy-render.yml` a ogni push su `main` |
+| Dominio | `psicologamaddalenapimponi.it` e `www` aggiunti su Render, in attesa di DNS e registrazione |
+| Repository | pubblico: è la condizione che permette a Render di leggere il codice senza autorizzazioni aggiuntive |
+
+Record DNS da creare presso il registrar, quando il dominio sarà registrato:
+
+| Nome | Tipo | Valore |
+|---|---|---|
+| `@` (dominio nudo) | A | `216.24.57.1` |
+| `www` | CNAME | `psicologamaddalenapimponi.onrender.com` |
+
+Render emette il certificato HTTPS da solo appena la verifica va a buon fine. Il repository può tornare privato solo dopo aver autorizzato l'app GitHub di Render sul repository: senza quell'autorizzazione le build non riescono a scaricare il codice.
+
 ### Collegare il dominio
 
 Dopo aver registrato `psicologamaddalenapimponi.it` presso un registrar italiano (Aruba, Register.it, OVH e simili; serve un codice fiscale o una partita IVA):
