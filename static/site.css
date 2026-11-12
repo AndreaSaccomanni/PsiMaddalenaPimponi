@@ -677,7 +677,7 @@ select:focus-visible {
 }
 .location-card strong { color: var(--ink); font-weight: 500; }
 .location-card:not(.location-online) > div { display: flex; flex-direction: column; }
-.location-card:not(.location-online) > div > .text-link { margin-top: auto; }
+.location-card:not(.location-online) > div > .text-link { margin-top: auto; align-self: flex-start; }
 .location-online { background: linear-gradient(160deg, #f3ecf6, #efe6f3); border-color: #e4d6ec; }
 
 /* ---------- CTA finale ---------- */
