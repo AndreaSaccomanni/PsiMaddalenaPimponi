@@ -515,6 +515,7 @@ select:focus-visible {
 }
 
 .trust-item {
+    margin: 0;
     padding: 22px clamp(12px, 2.5vw, 32px);
     display: flex;
     align-items: center;
