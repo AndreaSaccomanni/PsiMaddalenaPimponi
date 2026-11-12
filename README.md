@@ -87,6 +87,7 @@ Un dominio può stare su un solo host: non lasciare record `AAAA` o record verso
 - **Versione statica su GitHub Pages**: il sito è riscritto come file statici; il ramo `main` pubblica con il workflow `pages.yml`. La versione Blazor/Render resta nella storia Git (commit `e159a9c`).
 - **Mappe su clic**: le mappe Google si caricano solo quando il visitatore le attiva.
 - **Pulsante WhatsApp**: flottante in basso a destra su tutte le pagine tranne `/contatti/`.
+- **Studi in home**: la sezione "Dove ricevo" della home mostra le card degli studi di Orvieto e Narni, con il pulsante "Mostra la mappa" che apre Google Maps in una nuova scheda.
 
 ---
 
